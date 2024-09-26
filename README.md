@@ -1,2 +1,2 @@
 # segmentation-module
-Segmentation module to filter relevant pointcloud in 
+Apple Picking Project - Segmentation module to filter relevant pointcloud for reconstruction
