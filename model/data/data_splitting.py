@@ -2,41 +2,38 @@ import pandas as pd
 import os
 import random
 
+from data import CSV_PATH, IMAGE_PATH
 RATIO = (0.7, 0.15, 0.15)
-CSV_PATH = 'dataset_splits.csv'
-DATASET_PATH = '/media/quanvu/ApplesQV/APPLE_DATA'
-IMAGE_DIR = 'images-Fuji'
 
 
 class DatasetSplitter:
-    def __init__(self, default_ratio=None):
+    def __init__(self, default_ratio=None, csv_path=CSV_PATH, image_path=IMAGE_PATH):
         """
         Initialize the DatasetSplitter class.
 
         Parameters:
-            csv_path (str): Path to the CSV file.
+            CSV_PATH (str): Path to the CSV file.
             default_ratio (tuple): Default train/val/test ratio for random splitting.
         """
-        self.csv_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), CSV_PATH)
+        self.csv_path = csv_path
         self.default_ratio = default_ratio if default_ratio is not None else RATIO
-        images_path = os.path.join(DATASET_PATH, IMAGE_DIR)
 
         # Check if the CSV file exists; if not, create a new one
         if not os.path.exists(self.csv_path):
             print(f"CSV file does not exist. Creating a new one at {self.csv_path}.")
-            self.df = self._create_initial_csv(images_path)
+            self.df = self._create_initial_csv(image_path)
         else:
             self.df = pd.read_csv(self.csv_path)
             if 'Image Name' not in self.df.columns:
                 raise ValueError("The existing CSV file must contain an 'Image Name' column.")
             
-            self._check_image_consistency(images_path)
+            self._check_image_consistency(image_path)
 
-    def _create_initial_csv(self, images_path):
+    def _create_initial_csv(self, image_path):
         """ 
         Create a new CSV with all image names from the dataset folder. 
         """
-        image_names = self._retrieve_image_names(images_path)
+        image_names = self._retrieve_image_names(image_path)
         df = pd.DataFrame(image_names, columns=['Image Name'])
         df.to_csv(self.csv_path, index=False)
         return df
@@ -87,8 +84,6 @@ class DatasetSplitter:
             raise ValueError(f"Extra images in the directory (found but not present in CSV): {extra_images}")
         
         print("CSV and image directory are consistent.")
-
-
 
     def _get_split_name(self, split_type: str):
         """ 
