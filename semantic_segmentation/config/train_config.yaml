@@ -1,0 +1,28 @@
+note: "TEST TRAIN"
+
+num_classes: 2
+epochs: 25
+batch_size: 16
+
+# Split name (column name in the csv file)
+split: 'random_split'
+
+# Optimiser
+optimiser:
+  type: adam
+
+# Learning Rate
+lr: 0.001
+lr_scheduler:
+  type: step # StepLR
+
+  # StepLR
+  step_size: 5
+  gamma: 0.5
+  
+  # CosineAnnealingLR
+  type: cosine_annealing
+  T_max: 10
+
+# Criterion
+loss: 'cross_entropy'

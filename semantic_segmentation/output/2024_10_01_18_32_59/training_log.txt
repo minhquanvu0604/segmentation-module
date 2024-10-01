@@ -1,0 +1,299 @@
+Save directory: output/2024_10_01_18_32_59
+TEST TRAIN
+--------- [START] Training started at: 2024-10-01 18:32:59.488923 ---------
+
+Config:
+{'note': 'TEST TRAIN', 'num_classes': 2, 'epochs': 25, 'batch_size': 16, 'split': 'random_split', 'optimiser': {'type': 'adam'}, 'lr': 0.001, 'lr_scheduler': {'type': 'cosine_annealing', 'step_size': 5, 'gamma': 0.5, 'T_max': 10}, 'loss': 'cross_entropy', 'save_dir': 'output/2024_10_01_18_32_59'}
+Device: cuda
+
+Model Architecture:
+
+DeepLabV3(
+  (backbone): IntermediateLayerGetter(
+    (conv1): Conv2d(3, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
+    (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (relu): ReLU(inplace=True)
+    (maxpool): MaxPool2d(kernel_size=3, stride=2, padding=1, dilation=1, ceil_mode=False)
+    (layer1): Sequential(
+      (0): Bottleneck(
+        (conv1): Conv2d(64, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (downsample): Sequential(
+          (0): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (1): Bottleneck(
+        (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+      (2): Bottleneck(
+        (conv1): Conv2d(256, 64, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(64, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+    )
+    (layer2): Sequential(
+      (0): Bottleneck(
+        (conv1): Conv2d(256, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (downsample): Sequential(
+          (0): Conv2d(256, 512, kernel_size=(1, 1), stride=(2, 2), bias=False)
+          (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (1): Bottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+      (2): Bottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+      (3): Bottleneck(
+        (conv1): Conv2d(512, 128, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(128, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(128, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+    )
+    (layer3): Sequential(
+      (0): Bottleneck(
+        (conv1): Conv2d(512, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (downsample): Sequential(
+          (0): Conv2d(512, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (1): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+      (2): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+      (3): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+      (4): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+      (5): Bottleneck(
+        (conv1): Conv2d(1024, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(256, 1024, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+    )
+    (layer4): Sequential(
+      (0): Bottleneck(
+        (conv1): Conv2d(1024, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(2, 2), dilation=(2, 2), bias=False)
+        (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+        (downsample): Sequential(
+          (0): Conv2d(1024, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        )
+      )
+      (1): Bottleneck(
+        (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(4, 4), dilation=(4, 4), bias=False)
+        (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+      (2): Bottleneck(
+        (conv1): Conv2d(2048, 512, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(512, 512, kernel_size=(3, 3), stride=(1, 1), padding=(4, 4), dilation=(4, 4), bias=False)
+        (bn2): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (conv3): Conv2d(512, 2048, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (bn3): BatchNorm2d(2048, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (relu): ReLU(inplace=True)
+      )
+    )
+  )
+  (classifier): DeepLabHead(
+    (0): ASPP(
+      (convs): ModuleList(
+        (0): Sequential(
+          (0): Conv2d(2048, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU()
+        )
+        (1): ASPPConv(
+          (0): Conv2d(2048, 256, kernel_size=(3, 3), stride=(1, 1), padding=(12, 12), dilation=(12, 12), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU()
+        )
+        (2): ASPPConv(
+          (0): Conv2d(2048, 256, kernel_size=(3, 3), stride=(1, 1), padding=(24, 24), dilation=(24, 24), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU()
+        )
+        (3): ASPPConv(
+          (0): Conv2d(2048, 256, kernel_size=(3, 3), stride=(1, 1), padding=(36, 36), dilation=(36, 36), bias=False)
+          (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (2): ReLU()
+        )
+        (4): ASPPPooling(
+          (0): AdaptiveAvgPool2d(output_size=1)
+          (1): Conv2d(2048, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+          (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (3): ReLU()
+        )
+      )
+      (project): Sequential(
+        (0): Conv2d(1280, 256, kernel_size=(1, 1), stride=(1, 1), bias=False)
+        (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+        (3): Dropout(p=0.5, inplace=False)
+      )
+    )
+    (1): Conv2d(256, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+    (2): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (3): ReLU()
+    (4): Conv2d(256, 2, kernel_size=(1, 1), stride=(1, 1))
+  )
+  (aux_classifier): FCNHead(
+    (0): Conv2d(1024, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), bias=False)
+    (1): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (2): ReLU()
+    (3): Dropout(p=0.1, inplace=False)
+    (4): Conv2d(256, 21, kernel_size=(1, 1), stride=(1, 1))
+  )
+)
+
+Model Parameters:
+Total Parameters: 41,999,191
+Trainable Parameters: 41,999,191
+
+Model Summary:
+=================================================================
+Layer (type:depth-idx)                   Param #
+=================================================================
+├─IntermediateLayerGetter: 1-1           --
+|    └─Conv2d: 2-1                       9,408
+|    └─BatchNorm2d: 2-2                  128
+|    └─ReLU: 2-3                         --
+|    └─MaxPool2d: 2-4                    --
+|    └─Sequential: 2-5                   --
+|    |    └─Bottleneck: 3-1              75,008
+|    |    └─Bottleneck: 3-2              70,400
+|    |    └─Bottleneck: 3-3              70,400
+|    └─Sequential: 2-6                   --
+|    |    └─Bottleneck: 3-4              379,392
+|    |    └─Bottleneck: 3-5              280,064
+|    |    └─Bottleneck: 3-6              280,064
+|    |    └─Bottleneck: 3-7              280,064
+|    └─Sequential: 2-7                   --
+|    |    └─Bottleneck: 3-8              1,512,448
+|    |    └─Bottleneck: 3-9              1,117,184
+|    |    └─Bottleneck: 3-10             1,117,184
+|    |    └─Bottleneck: 3-11             1,117,184
+|    |    └─Bottleneck: 3-12             1,117,184
+|    |    └─Bottleneck: 3-13             1,117,184
+|    └─Sequential: 2-8                   --
+|    |    └─Bottleneck: 3-14             6,039,552
+|    |    └─Bottleneck: 3-15             4,462,592
+|    |    └─Bottleneck: 3-16             4,462,592
+├─DeepLabHead: 1-2                       --
+|    └─ASPP: 2-9                         --
+|    |    └─ModuleList: 3-17             15,206,912
+|    |    └─Sequential: 3-18             328,192
+|    └─Conv2d: 2-10                      589,824
+|    └─BatchNorm2d: 2-11                 512
+|    └─ReLU: 2-12                        --
+|    └─Conv2d: 2-13                      514
+├─FCNHead: 1-3                           --
+|    └─Conv2d: 2-14                      2,359,296
+|    └─BatchNorm2d: 2-15                 512
+|    └─ReLU: 2-16                        --
+|    └─Dropout: 2-17                     --
+|    └─Conv2d: 2-18                      5,397
+=================================================================
+Total params: 41,999,191
+Trainable params: 41,999,191
+Non-trainable params: 0
+=================================================================
+Training interrupted due to error: ['Image_2.jpg', 'Image_3.jpg', 'Image_4.jpg', 'Image_5.jpg', 'Image_6.jpg', 'Image_7.jpg', 'Image_9.jpg', 'Image_10.jpg', 'Image_11.jpg', 'Image_13.jpg', 'Image_14.jpg', 'Image_17.jpg', 'Image_20.jpg', 'Image_21.jpg', 'Image_22.jpg', 'Image_23.jpg', 'Image_24.jpg', 'Image_26.jpg', 'Image_27.jpg', 'Image_29.jpg', 'Image_31.jpg', 'Image_34.jpg', 'Image_35.jpg', 'Image_36.jpg', 'Image_37.jpg', 'Image_39.jpg', 'Image_40.jpg', 'Image_41.jpg', 'Image_44.jpg', 'Image_45.jpg', 'Image_46.jpg', 'Image_47.jpg', 'Image_48.jpg', 'Image_49.jpg', 'Image_51.jpg', 'Image_52.jpg', 'Image_54.jpg', 'Image_55.jpg', 'Image_57.jpg', 'Image_58.jpg', 'Image_60.jpg', 'Image_61.jpg', 'Image_63.jpg', 'Image_64.jpg', 'Image_65.jpg', 'Image_66.jpg', 'Image_67.jpg', 'Image_69.jpg', 'Image_71.jpg', 'Image_72.jpg', 'Image_73.jpg', 'Image_76.jpg', 'Image_81.jpg', 'Image_83.jpg', 'Image_85.jpg', 'Image_86.jpg', 'Image_87.jpg', 'Image_88.jpg', 'Image_89.jpg', 'Image_90.jpg', 'Image_91.jpg', 'Image_92.jpg', 'Image_95.jpg', 'Image_97.jpg', 'Image_98.jpg', 'Image_100.jpg', 'Image_103.jpg', 'Image_104.jpg', 'Image_105.jpg', 'Image_108.jpg', 'Image_109.jpg', 'Image_110.jpg', 'Image_111.jpg', 'Image_112.jpg', 'Image_113.jpg', 'Image_115.jpg', 'Image_116.jpg', 'Image_117.jpg', 'Image_118.jpg', 'Image_119.jpg', 'Image_120.jpg', 'Image_121.jpg', 'Image_123.jpg', 'Image_124.jpg', 'Image_125.jpg', 'Image_126.jpg', 'Image_127.jpg', 'Image_128.jpg', 'Image_129.jpg', 'Image_132.jpg', 'Image_133.jpg', 'Image_135.jpg', 'Image_136.jpg', 'Image_137.jpg', 'Image_138.jpg', 'Image_139.jpg', 'Image_140.jpg', 'Image_141.jpg', 'Image_142.jpg', 'Image_143.jpg', 'Image_144.jpg', 'Image_145.jpg', 'Image_146.jpg', 'Image_147.jpg', 'Image_148.jpg', 'Image_150.jpg', 'Image_151.jpg', 'Image_152.jpg', 'Image_153.jpg', 'Image_155.jpg', 'Image_156.jpg', 'Image_157.jpg', 'Image_160.jpg', 'Image_161.jpg', 'Image_162.jpg', 'Image_164.jpg', 'Image_165.jpg', 'Image_166.jpg', 'Image_167.jpg', 'Image_170.jpg', 'Image_171.jpg', 'Image_172.jpg', 'Image_173.jpg', 'Image_174.jpg', 'Image_175.jpg', 'Image_176.jpg', 'Image_177.jpg', 'Image_179.jpg', 'Image_180.jpg', 'Image_181.jpg', 'Image_184.jpg', 'Image_185.jpg', 'Image_186.jpg', 'Image_187.jpg', 'Image_188.jpg', 'Image_189.jpg', 'Image_191.jpg', 'Image_193.jpg', 'Image_194.jpg', 'Image_195.jpg', 'Image_197.jpg', 'Image_198.jpg', 'Image_199.jpg', 'Image_200.jpg', 'Image_202.jpg', 'Image_203.jpg', 'Image_204.jpg', 'Image_205.jpg', 'Image_206.jpg', 'Image_207.jpg', 'Image_209.jpg', 'Image_210.jpg', 'Image_211.jpg', 'Image_213.jpg', 'Image_214.jpg', 'Image_215.jpg', 'Image_216.jpg', 'Image_217.jpg', 'Image_219.jpg', 'Image_220.jpg', 'Image_221.jpg', 'Image_222.jpg', 'Image_224.jpg', 'Image_227.jpg', 'Image_230.jpg', 'Image_232.jpg', 'Image_233.jpg', 'Image_235.jpg', 'Image_236.jpg', 'Image_237.jpg', 'Image_238.jpg', 'Image_239.jpg', 'Image_240.jpg', 'Image_241.jpg', 'Image_242.jpg', 'Image_243.jpg', 'Image_244.jpg', 'Image_246.jpg', 'Image_247.jpg', 'Image_248.jpg', 'Image_249.jpg', 'Image_251.jpg', 'Image_252.jpg', 'Image_255.jpg', 'Image_256.jpg', 'Image_257.jpg', 'Image_258.jpg', 'Image_259.jpg', 'Image_260.jpg', 'Image_261.jpg', 'Image_263.jpg', 'Image_265.jpg', 'Image_266.jpg', 'Image_269.jpg', 'Image_270.jpg', 'Image_271.jpg', 'Image_272.jpg', 'Image_273.jpg', 'Image_277.jpg', 'Image_278.jpg', 'Image_279.jpg', 'Image_283.jpg', 'Image_284.jpg', 'Image_285.jpg', 'Image_287.jpg', 'Image_288.jpg', 'Image_289.jpg', 'Image_290.jpg', 'Image_291.jpg', 'Image_292.jpg', 'Image_293.jpg', 'Image_296.jpg', 'Image_297.jpg', 'Image_299.jpg', 'Image_300.jpg', 'Image_301.jpg', 'Image_302.jpg', 'Image_303.jpg', 'Image_304.jpg', 'Image_306.jpg', 'Image_308.jpg', 'Image_309.jpg', 'Image_310.jpg', 'Image_311.jpg', 'Image_314.jpg', 'Image_315.jpg', 'Image_317.jpg', 'Image_320.jpg', 'Image_321.jpg', 'Image_322.jpg', 'Image_324.jpg', 'Image_325.jpg', 'Image_326.jpg', 'Image_327.jpg', 'Image_329.jpg', 'Image_330.jpg', 'Image_331.jpg', 'Image_332.jpg', 'Image_333.jpg', 'Image_335.jpg', 'Image_336.jpg', 'Image_337.jpg', 'Image_338.jpg', 'Image_340.jpg', 'Image_341.jpg', 'Image_343.jpg', 'Image_344.jpg', 'Image_345.jpg', 'Image_346.jpg', 'Image_348.jpg', 'Image_349.jpg', 'Image_350.jpg', 'Image_352.jpg', 'Image_353.jpg', 'Image_354.jpg', 'Image_355.jpg', 'Image_356.jpg', 'Image_357.jpg', 'Image_358.jpg', 'Image_360.jpg', 'Image_361.jpg', 'Image_362.jpg', 'Image_364.jpg', 'Image_366.jpg', 'Image_368.jpg', 'Image_370.jpg', 'Image_372.jpg', 'Image_374.jpg', 'Image_375.jpg', 'Image_376.jpg', 'Image_377.jpg', 'Image_378.jpg', 'Image_379.jpg', 'Image_380.jpg', 'Image_381.jpg', 'Image_382.jpg', 'Image_384.jpg', 'Image_386.jpg', 'Image_387.jpg', 'Image_388.jpg', 'Image_389.jpg', 'Image_390.jpg', 'Image_391.jpg', 'Image_392.jpg', 'Image_393.jpg', 'Image_394.jpg', 'Image_396.jpg', 'Image_397.jpg', 'Image_400.jpg', 'Image_402.jpg', 'Image_403.jpg', 'Image_404.jpg', 'Image_405.jpg', 'Image_406.jpg', 'Image_407.jpg', 'Image_408.jpg', 'Image_409.jpg', 'Image_410.jpg', 'Image_411.jpg', 'Image_412.jpg', 'Image_415.jpg', 'Image_416.jpg', 'Image_422.jpg', 'Image_423.jpg', 'Image_424.jpg', 'Image_425.jpg', 'Image_426.jpg', 'Image_427.jpg', 'Image_428.jpg', 'Image_430.jpg', 'Image_431.jpg', 'Image_433.jpg', 'Image_437.jpg', 'Image_438.jpg', 'Image_439.jpg', 'Image_441.jpg', 'Image_442.jpg', 'Image_444.jpg', 'Image_445.jpg', 'Image_446.jpg', 'Image_448.jpg', 'Image_450.jpg', 'Image_451.jpg', 'Image_452.jpg', 'Image_454.jpg', 'Image_455.jpg', 'Image_456.jpg', 'Image_457.jpg', 'Image_458.jpg', 'Image_460.jpg', 'Image_461.jpg', 'Image_463.jpg', 'Image_464.jpg', 'Image_465.jpg', 'Image_466.jpg', 'Image_467.jpg', 'Image_469.jpg', 'Image_470.jpg', 'Image_471.jpg', 'Image_472.jpg', 'Image_473.jpg', 'Image_476.jpg', 'Image_477.jpg', 'Image_478.jpg', 'Image_479.jpg', 'Image_480.jpg', 'Image_481.jpg', 'Image_483.jpg', 'Image_486.jpg', 'Image_487.jpg', 'Image_489.jpg', 'Image_492.jpg', 'Image_493.jpg', 'Image_495.jpg', 'Image_496.jpg', 'Image_497.jpg', 'Image_498.jpg', 'Image_499.jpg', 'Image_504.jpg', 'Image_505.jpg', 'Image_507.jpg', 'Image_508.jpg', 'Image_509.jpg', 'Image_510.jpg', 'Image_511.jpg', 'Image_512.jpg', 'Image_515.jpg', 'Image_517.jpg', 'Image_519.jpg', 'Image_520.jpg', 'Image_521.jpg', 'Image_522.jpg', 'Image_523.jpg', 'Image_524.jpg', 'Image_525.jpg', 'Image_526.jpg', 'Image_527.jpg', 'Image_528.jpg', 'Image_531.jpg', 'Image_534.jpg', 'Image_535.jpg', 'Image_536.jpg', 'Image_540.jpg', 'Image_541.jpg', 'Image_542.jpg', 'Image_543.jpg', 'Image_545.jpg', 'Image_546.jpg', 'Image_549.jpg', 'Image_551.jpg', 'Image_552.jpg', 'Image_553.jpg', 'Image_554.jpg', 'Image_556.jpg', 'Image_558.jpg', 'Image_559.jpg', 'Image_561.jpg', 'Image_562.jpg', 'Image_565.jpg', 'Image_568.jpg', 'Image_569.jpg', 'Image_573.jpg', 'Image_575.jpg', 'Image_576.jpg', 'Image_577.jpg', 'Image_578.jpg', 'Image_579.jpg', 'Image_581.jpg', 'Image_587.jpg', 'Image_588.jpg', 'Image_589.jpg', 'Image_591.jpg', 'Image_592.jpg', 'Image_593.jpg', 'Image_594.jpg', 'Image_595.jpg', 'Image_596.jpg', 'Image_597.jpg', 'Image_598.jpg', 'Image_600.jpg', 'Image_602.jpg', 'Image_603.jpg', 'Image_604.jpg', 'Image_605.jpg', 'Image_606.jpg', 'Image_607.jpg', 'Image_608.jpg', 'Image_609.jpg', 'Image_610.jpg', 'Image_611.jpg', 'Image_613.jpg', 'Image_614.jpg', 'Image_615.jpg', 'Image_616.jpg', 'Image_617.jpg', 'Image_619.jpg', 'Image_621.jpg', 'Image_623.jpg', 'Image_626.jpg', 'Image_627.jpg', 'Image_629.jpg', 'Image_630.jpg', 'Image_631.jpg', 'Image_632.jpg', 'Image_637.jpg', 'Image_638.jpg', 'Image_639.jpg', 'Image_640.jpg', 'Image_641.jpg', 'Image_642.jpg', 'Image_645.jpg', 'Image_646.jpg', 'Image_647.jpg', 'Image_648.jpg', 'Image_650.jpg', 'Image_651.jpg', 'Image_653.jpg', 'Image_656.jpg', 'Image_657.jpg', 'Image_658.jpg', 'Image_659.jpg', 'Image_661.jpg', 'Image_662.jpg', 'Image_664.jpg', 'Image_665.jpg', 'Image_667.jpg', 'Image_669.jpg', 'Image_671.jpg', 'Image_672.jpg', 'Image_673.jpg', 'Image_674.jpg']
+Traceback (most recent call last):
+  File "train_deeplabv3.py", line 172, in <module>
+    train(config)
+  File "train_deeplabv3.py", line 64, in train
+    train_loader, val_loader = get_dataloaders(split_set=config['split'],
+  File "/home/quanvu/git/segmentation-module/semantic_segmentation/data/dataloader.py", line 94, in get_dataloaders
+    train_dataset = AppleDataset(split_set=split_set, split='train', transforms=train_transforms)
+  File "/home/quanvu/git/segmentation-module/semantic_segmentation/data/dataloader.py", line 34, in __init__
+    raise ValueError(self.image_names)
+ValueError: ['Image_2.jpg', 'Image_3.jpg', 'Image_4.jpg', 'Image_5.jpg', 'Image_6.jpg', 'Image_7.jpg', 'Image_9.jpg', 'Image_10.jpg', 'Image_11.jpg', 'Image_13.jpg', 'Image_14.jpg', 'Image_17.jpg', 'Image_20.jpg', 'Image_21.jpg', 'Image_22.jpg', 'Image_23.jpg', 'Image_24.jpg', 'Image_26.jpg', 'Image_27.jpg', 'Image_29.jpg', 'Image_31.jpg', 'Image_34.jpg', 'Image_35.jpg', 'Image_36.jpg', 'Image_37.jpg', 'Image_39.jpg', 'Image_40.jpg', 'Image_41.jpg', 'Image_44.jpg', 'Image_45.jpg', 'Image_46.jpg', 'Image_47.jpg', 'Image_48.jpg', 'Image_49.jpg', 'Image_51.jpg', 'Image_52.jpg', 'Image_54.jpg', 'Image_55.jpg', 'Image_57.jpg', 'Image_58.jpg', 'Image_60.jpg', 'Image_61.jpg', 'Image_63.jpg', 'Image_64.jpg', 'Image_65.jpg', 'Image_66.jpg', 'Image_67.jpg', 'Image_69.jpg', 'Image_71.jpg', 'Image_72.jpg', 'Image_73.jpg', 'Image_76.jpg', 'Image_81.jpg', 'Image_83.jpg', 'Image_85.jpg', 'Image_86.jpg', 'Image_87.jpg', 'Image_88.jpg', 'Image_89.jpg', 'Image_90.jpg', 'Image_91.jpg', 'Image_92.jpg', 'Image_95.jpg', 'Image_97.jpg', 'Image_98.jpg', 'Image_100.jpg', 'Image_103.jpg', 'Image_104.jpg', 'Image_105.jpg', 'Image_108.jpg', 'Image_109.jpg', 'Image_110.jpg', 'Image_111.jpg', 'Image_112.jpg', 'Image_113.jpg', 'Image_115.jpg', 'Image_116.jpg', 'Image_117.jpg', 'Image_118.jpg', 'Image_119.jpg', 'Image_120.jpg', 'Image_121.jpg', 'Image_123.jpg', 'Image_124.jpg', 'Image_125.jpg', 'Image_126.jpg', 'Image_127.jpg', 'Image_128.jpg', 'Image_129.jpg', 'Image_132.jpg', 'Image_133.jpg', 'Image_135.jpg', 'Image_136.jpg', 'Image_137.jpg', 'Image_138.jpg', 'Image_139.jpg', 'Image_140.jpg', 'Image_141.jpg', 'Image_142.jpg', 'Image_143.jpg', 'Image_144.jpg', 'Image_145.jpg', 'Image_146.jpg', 'Image_147.jpg', 'Image_148.jpg', 'Image_150.jpg', 'Image_151.jpg', 'Image_152.jpg', 'Image_153.jpg', 'Image_155.jpg', 'Image_156.jpg', 'Image_157.jpg', 'Image_160.jpg', 'Image_161.jpg', 'Image_162.jpg', 'Image_164.jpg', 'Image_165.jpg', 'Image_166.jpg', 'Image_167.jpg', 'Image_170.jpg', 'Image_171.jpg', 'Image_172.jpg', 'Image_173.jpg', 'Image_174.jpg', 'Image_175.jpg', 'Image_176.jpg', 'Image_177.jpg', 'Image_179.jpg', 'Image_180.jpg', 'Image_181.jpg', 'Image_184.jpg', 'Image_185.jpg', 'Image_186.jpg', 'Image_187.jpg', 'Image_188.jpg', 'Image_189.jpg', 'Image_191.jpg', 'Image_193.jpg', 'Image_194.jpg', 'Image_195.jpg', 'Image_197.jpg', 'Image_198.jpg', 'Image_199.jpg', 'Image_200.jpg', 'Image_202.jpg', 'Image_203.jpg', 'Image_204.jpg', 'Image_205.jpg', 'Image_206.jpg', 'Image_207.jpg', 'Image_209.jpg', 'Image_210.jpg', 'Image_211.jpg', 'Image_213.jpg', 'Image_214.jpg', 'Image_215.jpg', 'Image_216.jpg', 'Image_217.jpg', 'Image_219.jpg', 'Image_220.jpg', 'Image_221.jpg', 'Image_222.jpg', 'Image_224.jpg', 'Image_227.jpg', 'Image_230.jpg', 'Image_232.jpg', 'Image_233.jpg', 'Image_235.jpg', 'Image_236.jpg', 'Image_237.jpg', 'Image_238.jpg', 'Image_239.jpg', 'Image_240.jpg', 'Image_241.jpg', 'Image_242.jpg', 'Image_243.jpg', 'Image_244.jpg', 'Image_246.jpg', 'Image_247.jpg', 'Image_248.jpg', 'Image_249.jpg', 'Image_251.jpg', 'Image_252.jpg', 'Image_255.jpg', 'Image_256.jpg', 'Image_257.jpg', 'Image_258.jpg', 'Image_259.jpg', 'Image_260.jpg', 'Image_261.jpg', 'Image_263.jpg', 'Image_265.jpg', 'Image_266.jpg', 'Image_269.jpg', 'Image_270.jpg', 'Image_271.jpg', 'Image_272.jpg', 'Image_273.jpg', 'Image_277.jpg', 'Image_278.jpg', 'Image_279.jpg', 'Image_283.jpg', 'Image_284.jpg', 'Image_285.jpg', 'Image_287.jpg', 'Image_288.jpg', 'Image_289.jpg', 'Image_290.jpg', 'Image_291.jpg', 'Image_292.jpg', 'Image_293.jpg', 'Image_296.jpg', 'Image_297.jpg', 'Image_299.jpg', 'Image_300.jpg', 'Image_301.jpg', 'Image_302.jpg', 'Image_303.jpg', 'Image_304.jpg', 'Image_306.jpg', 'Image_308.jpg', 'Image_309.jpg', 'Image_310.jpg', 'Image_311.jpg', 'Image_314.jpg', 'Image_315.jpg', 'Image_317.jpg', 'Image_320.jpg', 'Image_321.jpg', 'Image_322.jpg', 'Image_324.jpg', 'Image_325.jpg', 'Image_326.jpg', 'Image_327.jpg', 'Image_329.jpg', 'Image_330.jpg', 'Image_331.jpg', 'Image_332.jpg', 'Image_333.jpg', 'Image_335.jpg', 'Image_336.jpg', 'Image_337.jpg', 'Image_338.jpg', 'Image_340.jpg', 'Image_341.jpg', 'Image_343.jpg', 'Image_344.jpg', 'Image_345.jpg', 'Image_346.jpg', 'Image_348.jpg', 'Image_349.jpg', 'Image_350.jpg', 'Image_352.jpg', 'Image_353.jpg', 'Image_354.jpg', 'Image_355.jpg', 'Image_356.jpg', 'Image_357.jpg', 'Image_358.jpg', 'Image_360.jpg', 'Image_361.jpg', 'Image_362.jpg', 'Image_364.jpg', 'Image_366.jpg', 'Image_368.jpg', 'Image_370.jpg', 'Image_372.jpg', 'Image_374.jpg', 'Image_375.jpg', 'Image_376.jpg', 'Image_377.jpg', 'Image_378.jpg', 'Image_379.jpg', 'Image_380.jpg', 'Image_381.jpg', 'Image_382.jpg', 'Image_384.jpg', 'Image_386.jpg', 'Image_387.jpg', 'Image_388.jpg', 'Image_389.jpg', 'Image_390.jpg', 'Image_391.jpg', 'Image_392.jpg', 'Image_393.jpg', 'Image_394.jpg', 'Image_396.jpg', 'Image_397.jpg', 'Image_400.jpg', 'Image_402.jpg', 'Image_403.jpg', 'Image_404.jpg', 'Image_405.jpg', 'Image_406.jpg', 'Image_407.jpg', 'Image_408.jpg', 'Image_409.jpg', 'Image_410.jpg', 'Image_411.jpg', 'Image_412.jpg', 'Image_415.jpg', 'Image_416.jpg', 'Image_422.jpg', 'Image_423.jpg', 'Image_424.jpg', 'Image_425.jpg', 'Image_426.jpg', 'Image_427.jpg', 'Image_428.jpg', 'Image_430.jpg', 'Image_431.jpg', 'Image_433.jpg', 'Image_437.jpg', 'Image_438.jpg', 'Image_439.jpg', 'Image_441.jpg', 'Image_442.jpg', 'Image_444.jpg', 'Image_445.jpg', 'Image_446.jpg', 'Image_448.jpg', 'Image_450.jpg', 'Image_451.jpg', 'Image_452.jpg', 'Image_454.jpg', 'Image_455.jpg', 'Image_456.jpg', 'Image_457.jpg', 'Image_458.jpg', 'Image_460.jpg', 'Image_461.jpg', 'Image_463.jpg', 'Image_464.jpg', 'Image_465.jpg', 'Image_466.jpg', 'Image_467.jpg', 'Image_469.jpg', 'Image_470.jpg', 'Image_471.jpg', 'Image_472.jpg', 'Image_473.jpg', 'Image_476.jpg', 'Image_477.jpg', 'Image_478.jpg', 'Image_479.jpg', 'Image_480.jpg', 'Image_481.jpg', 'Image_483.jpg', 'Image_486.jpg', 'Image_487.jpg', 'Image_489.jpg', 'Image_492.jpg', 'Image_493.jpg', 'Image_495.jpg', 'Image_496.jpg', 'Image_497.jpg', 'Image_498.jpg', 'Image_499.jpg', 'Image_504.jpg', 'Image_505.jpg', 'Image_507.jpg', 'Image_508.jpg', 'Image_509.jpg', 'Image_510.jpg', 'Image_511.jpg', 'Image_512.jpg', 'Image_515.jpg', 'Image_517.jpg', 'Image_519.jpg', 'Image_520.jpg', 'Image_521.jpg', 'Image_522.jpg', 'Image_523.jpg', 'Image_524.jpg', 'Image_525.jpg', 'Image_526.jpg', 'Image_527.jpg', 'Image_528.jpg', 'Image_531.jpg', 'Image_534.jpg', 'Image_535.jpg', 'Image_536.jpg', 'Image_540.jpg', 'Image_541.jpg', 'Image_542.jpg', 'Image_543.jpg', 'Image_545.jpg', 'Image_546.jpg', 'Image_549.jpg', 'Image_551.jpg', 'Image_552.jpg', 'Image_553.jpg', 'Image_554.jpg', 'Image_556.jpg', 'Image_558.jpg', 'Image_559.jpg', 'Image_561.jpg', 'Image_562.jpg', 'Image_565.jpg', 'Image_568.jpg', 'Image_569.jpg', 'Image_573.jpg', 'Image_575.jpg', 'Image_576.jpg', 'Image_577.jpg', 'Image_578.jpg', 'Image_579.jpg', 'Image_581.jpg', 'Image_587.jpg', 'Image_588.jpg', 'Image_589.jpg', 'Image_591.jpg', 'Image_592.jpg', 'Image_593.jpg', 'Image_594.jpg', 'Image_595.jpg', 'Image_596.jpg', 'Image_597.jpg', 'Image_598.jpg', 'Image_600.jpg', 'Image_602.jpg', 'Image_603.jpg', 'Image_604.jpg', 'Image_605.jpg', 'Image_606.jpg', 'Image_607.jpg', 'Image_608.jpg', 'Image_609.jpg', 'Image_610.jpg', 'Image_611.jpg', 'Image_613.jpg', 'Image_614.jpg', 'Image_615.jpg', 'Image_616.jpg', 'Image_617.jpg', 'Image_619.jpg', 'Image_621.jpg', 'Image_623.jpg', 'Image_626.jpg', 'Image_627.jpg', 'Image_629.jpg', 'Image_630.jpg', 'Image_631.jpg', 'Image_632.jpg', 'Image_637.jpg', 'Image_638.jpg', 'Image_639.jpg', 'Image_640.jpg', 'Image_641.jpg', 'Image_642.jpg', 'Image_645.jpg', 'Image_646.jpg', 'Image_647.jpg', 'Image_648.jpg', 'Image_650.jpg', 'Image_651.jpg', 'Image_653.jpg', 'Image_656.jpg', 'Image_657.jpg', 'Image_658.jpg', 'Image_659.jpg', 'Image_661.jpg', 'Image_662.jpg', 'Image_664.jpg', 'Image_665.jpg', 'Image_667.jpg', 'Image_669.jpg', 'Image_671.jpg', 'Image_672.jpg', 'Image_673.jpg', 'Image_674.jpg']

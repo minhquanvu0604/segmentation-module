@@ -13,7 +13,7 @@ from data import CSV_PATH, IMAGE_PATH, LABELS_PATH, APPLE_LABEL
 
 
 class AppleDataset(Dataset):
-    def __init__(self, split, transforms=None):
+    def __init__(self, split_set, split, transforms=None):
         """
         Initialize the AppleDataset class.
 
@@ -23,15 +23,14 @@ class AppleDataset(Dataset):
         """
         self.images_dir = IMAGE_PATH
         self.labels_dir = LABELS_PATH        
-        self.split = split
         self.transforms = transforms
         
         # Load the Excel file
-        self.df = pd.read_excel(CSV_PATH)
+        self.df = pd.read_csv(CSV_PATH)
 
         # Filter rows based on the split argument
-        self.image_names = self.df[self.df[split].str.startswith('train', na=False)]['Image Name'].tolist()
-        print(f"Loaded {len(self.image_names)} images for the {split} split.")
+        self.image_names = self.df[self.df[split_set].str.startswith(split, na=False)]['Image Name'].tolist()
+        print(f"Loaded {len(self.image_names)} images for the {split_set} split.")
 
     def __len__(self):
         """
@@ -54,6 +53,13 @@ class AppleDataset(Dataset):
 
         # Load the image
         image_path = os.path.join(self.images_dir, image_name)
+        raise ValueError(image_path)
+        for ext in ['.jpg', '.png']:
+            possible_path = image_path + ext
+            if os.path.isfile(possible_path):
+                image_path = possible_path
+                break
+        raise ValueError(possible_path)
         image = Image.open(image_path).convert("RGB")
 
         # Load the corresponding label mask
@@ -70,7 +76,7 @@ class AppleDataset(Dataset):
         return image, label
     
 
-def get_dataloaders(batch_size, num_workers=4, train_transforms=None, val_transforms=None):
+def get_dataloaders(split_set, batch_size, num_workers=4, train_transforms=None, val_transforms=None):
     """
     Creates DataLoader objects for training and validation datasets.
 
@@ -84,7 +90,7 @@ def get_dataloaders(batch_size, num_workers=4, train_transforms=None, val_transf
         train_loader (DataLoader): DataLoader for the training dataset.
         val_loader (DataLoader): DataLoader for the validation dataset.
     """
-    train_dataset = AppleDataset(split='train', transforms=train_transforms)
+    train_dataset = AppleDataset(split_set=split_set, split='train', transforms=train_transforms)
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
@@ -94,7 +100,7 @@ def get_dataloaders(batch_size, num_workers=4, train_transforms=None, val_transf
     )
 
     # Create the validation dataset and DataLoader
-    val_dataset = AppleDataset(split='val', transforms=val_transforms)
+    val_dataset = AppleDataset(split_set=split_set, split='val', transforms=val_transforms)
     val_loader = DataLoader(
         val_dataset,
         batch_size=batch_size,
@@ -105,7 +111,7 @@ def get_dataloaders(batch_size, num_workers=4, train_transforms=None, val_transf
 
     return train_loader, val_loader
 
-def get_transforms(input_size=(520, 520)):
+def get_transforms(input_size):
     """
     Creates transformation pipelines for training and validation datasets.
 
