@@ -15,9 +15,7 @@ def get_model(num_classes, pretrained=True):
     """
     # Load the pre-trained DeepLabV3 model
     weights = DeepLabV3_ResNet50_Weights.COCO_WITH_VOC_LABELS_V1 if pretrained else None
-    # model = deeplabv3_resnet50(weights=weights)
     model = deeplabv3_resnet50(weights=weights, output_stride=8)
-
 
     # Replace the classifier head to match the number of classes
     model.classifier[4] = nn.Conv2d(256, num_classes, kernel_size=(1, 1), stride=(1, 1))
@@ -48,7 +46,7 @@ def print_model_info(logger, model, input_size, device):
     
     logger.info("\nModel Parameters:")
     logger.info(f"\tTotal Parameters: {total_params:,}")
-    logger.info(f"\tTrainable Parameters: {trainable_params:,}")
+    logger.info(f"\tTrainable Parameters: {trainable_params:,}\n")
 
     # Provide a detailed summary (requires torchsummary)
     # logger.info("\nModel Summary:")

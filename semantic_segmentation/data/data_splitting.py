@@ -2,7 +2,7 @@ import pandas as pd
 import os
 import random
 
-from data import CSV_PATH, IMAGE_PATH
+from semantic_segmentation.config.config import CSV_PATH, IMAGE_PATH
 RATIO = (0.7, 0.15, 0.15)
 
 

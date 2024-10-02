@@ -8,10 +8,11 @@ from PIL import Image
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
+from torchvision.transforms import functional as F
 
 
 # Internal imports
-from data import CSV_PATH, IMAGE_PATH, LABELS_PATH, APPLE_LABEL
+from semantic_segmentation.config.config import CSV_PATH, IMAGE_PATH, LABELS_PATH, APPLE_LABEL
 
 
 class AppleDataset(Dataset):
@@ -109,6 +110,7 @@ def get_dataloaders(split_set, batch_size, num_workers=4, train_transforms=None,
     print("Loaded {} validation images".format(len(val_dataset)))
     return train_loader, val_loader
 
+
 class JointTransform:
     """
     Custom transformation class that handles transformations for both the input image and label mask.
@@ -122,39 +124,48 @@ class JointTransform:
         self.input_size = input_size
         self.is_train = is_train
         
-        # Augmentations that should apply only to training data
-        self.augmentations = transforms.Compose([
-            transforms.RandomHorizontalFlip(p=0.5),    # Randomly flip images horizontally
-            transforms.RandomRotation(degrees=15),     # Randomly rotate images by +/-15 degrees
+        # Augmentations for images (only for training)
+        self.image_augmentations = transforms.Compose([
             transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  # Random changes in brightness, contrast, etc.
             transforms.RandomGrayscale(p=0.1),         # Randomly convert images to grayscale with a probability of 0.1
-            transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),  # Apply Gaussian blur
+            transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5))  # Apply Gaussian blur
         ])
-        
-        # Transformations to be applied to both train and validation data
-        # For Resize and Normalize, we use the same values as the ones used for training DeepLabV3 by PyTorch, refer to:
-        # https://pytorch.org/vision/stable/models/generated/torchvision.models.segmentation.deeplabv3_resnet50.html#torchvision.models.segmentation.deeplabv3_resnet50
-        self.common_transforms = transforms.Compose([
-            transforms.Resize(input_size, interpolation=transforms.InterpolationMode.BILINEAR),
+
+        # Resize transformations for both images and masks with different interpolation
+        self.resize_image = transforms.Resize(input_size, interpolation=transforms.InterpolationMode.BILINEAR)
+        self.resize_mask = transforms.Resize(input_size, interpolation=transforms.InterpolationMode.NEAREST)
+
+        # Image-specific common transformations (for both training and validation)
+        self.common_transforms_image = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])  # Normalize the image
         ])
 
     def __call__(self, image, mask):
-        # Apply augmentations only if training
+        # Apply spatial augmentations only if training
         if self.is_train:
-            seed = random.randint(0, 99999)  # Seed ensures same transformation is applied to both image and mask
-            random.seed(seed)
-            image = self.augmentations(image)
-            random.seed(seed)
-            mask = self.augmentations(mask)
-        
-        # Apply the common transformations to the image
-        image = self.common_transforms(image)
-        
-        # Resize the mask and convert it to a tensor without normalization
-        mask = transforms.Resize(self.input_size, interpolation=transforms.InterpolationMode.NEAREST)(mask)
-        mask = torch.tensor(np.array(mask), dtype=torch.long)  # Keep mask as long type
+            # Random horizontal flip
+            if random.random() < 0.5:
+                image = F.hflip(image)
+                mask = F.hflip(mask)
+            
+            # Random rotation
+            angle = random.uniform(-15, 15)
+            image = F.rotate(image, angle, interpolation=transforms.InterpolationMode.BILINEAR)
+            mask = F.rotate(mask, angle, interpolation=transforms.InterpolationMode.NEAREST)
+
+            # Apply image-specific augmentations (color jitter, blur) only for training
+            image = self.image_augmentations(image)
+
+        # Resize both the image and mask with their respective interpolation methods
+        image = self.resize_image(image)
+        mask = self.resize_mask(mask)
+
+        # Apply the common transformations (ToTensor and Normalize) to the image
+        image = self.common_transforms_image(image)
+
+        # Convert mask to tensor without normalization
+        mask = torch.tensor(np.array(mask), dtype=torch.long)  # Convert to LongTensor for class labels
         return image, mask
 
 def get_transforms(input_size):

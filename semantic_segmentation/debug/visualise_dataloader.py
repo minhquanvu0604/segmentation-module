@@ -2,136 +2,107 @@ import sys, os
 top_level_package = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, top_level_package)
 
-wool_estimation_path = "/root/wool-estimation"
-fibre_segmentation_path = "/root/wool-estimation/fibre_segmentation"
-
-if wool_estimation_path not in sys.path:
-    sys.path.insert(0, wool_estimation_path)
-if fibre_segmentation_path not in sys.path:
-    sys.path.insert(0, fibre_segmentation_path)
-
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-import cv2
 
-from fibre_width.utils.visualise_utils import display_mask_image
-from fibre_width.utils.image_processing import resize_image
-
-from fibre_segmentation.data_loader import data_loaders
-import fibre_segmentation.transforms as T
+from semantic_segmentation.data.dataloader import get_transforms, get_dataloaders
 
 
-def visualise_specific_pair(image_path):
-    file_name = os.path.basename(image_path)
-
-    mask_path = os.path.join(os.path.dirname(image_path), '../masks/instances', file_name)
-    mask_path = os.path.normpath(mask_path)
-
-    # Display the image 
-    image = cv2.imread(image_path, cv2.IMREAD_COLOR)
-    scale_percent = 50
-    image = resize_image(image, scale_percent)
-    cv2.imshow(f"Mask", image)
-
-    # Display the mask
-    display_mask_image(mask_path)
-
-    # Wait for a key press and close the image window
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-def visualise_dataloader(data_loader, combined = True):
+def visualise_dataloader(data_loader):
     """
     Visualize the data loader output by displaying a randomly picked image and its masks side by side.
     This helps in verifying that the data loader side, inspecting downstream to the dataset's synthesised images and their labels.
 
     Press q to move on to the next mask of the same image.
     """
-
     iterator = iter(data_loader)
+    display_all_masks_at_once(iterator)
 
-    if combined:
-        print("[visualise_dataloader] Visualise an image's all masks at once")
-        display_all_masks_at_once(iterator)
-    else:
-        print("[visualise_dataloader] Visualise a single image's masks one after another")
-        display_masks_one_by_one(iterator)
+def display_all_masks_at_once(iterator, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], class_colors=None):
+    """
+    Displays the images and corresponding masks from an iterator.
+    
+    Parameters:
+        iterator: DataLoader iterator that provides (image, mask) tuples.
+        mean, std: Mean and standard deviation for denormalizing the image.
+        class_colors: List of RGB tuples for coloring the segmentation masks by class.
+    """
+    def denormalize(img, mean, std):
+        """Denormalizes the image for visualization."""
+        img = img.clone()  # Clone the tensor to avoid modifying the original
+        for i in range(3):  # Assuming the image has 3 channels (RGB)
+            img[i] = img[i] * std[i] + mean[i]
+        return img
 
-def display_all_masks_at_once(iterator):
-    while True:
-        try:
-            # Get a batch of data
-            img, target = next(iterator)
-        except StopIteration:
-            # If no more data, break the loop
-            break
+    plt.ion()  # Turn on interactive mode
+    try:
+        while True:
+            try:
+                # Get a batch of data (assuming a single image per batch)
+                img, target = next(iterator)
+            except StopIteration:
+                # If no more data, break the loop
+                break
 
-        img = img[0]  # First image in the batch
-        # Convert tensor to numpy array for visualization
-        img = img.permute(1, 2, 0).numpy()  # Convert from (C, H, W) to (H, W, C)
+            img = img[0]  # First image in the batch
+            target = target[0]  # First mask in the batch
+            
+            # Denormalize the image for visualization
+            img = denormalize(img, mean, std)
+            # Convert tensor to numpy array for visualization
+            img = img.permute(1, 2, 0).cpu().numpy()  # Convert from (C, H, W) to (H, W, C)
+            img = np.clip(img, 0, 1)  # Clip values to [0, 1] range for display
 
-        # Initialize a combined mask with zeros
-        combined_mask = np.zeros((img.shape[0], img.shape[1]), dtype=np.uint8)
+            # Convert the target tensor (mask) to numpy
+            target = target.cpu().numpy()  # Shape: (H, W)
+            
+            if class_colors:
+                # If class_colors is provided, map the mask to a colored version
+                combined_mask = np.zeros((*target.shape, 3), dtype=np.uint8)  # Create an RGB image for the mask
+                for class_idx, color in enumerate(class_colors):
+                    combined_mask[target == class_idx] = color
+            else:
+                # Use grayscale mask if no colors are provided
+                combined_mask = target  # Use the single mask directly as there are no multiple masks to combine
 
-        # Loop through each mask and add it to the combined mask with varying intensities
-        num_masks = len(target[0]['masks'])
-        for i in range(num_masks):
-            mask = target[0]['masks'][i].numpy()
-            intensity = int(255 * (i + 1) / num_masks)  # Calculate intensity based on mask index
-            combined_mask[mask > 0] = intensity  # Add mask to combined mask
-
-        # Plot the image and combined mask side by side
-        fig, axs = plt.subplots(1, 2, figsize=(10, 5))
-        # Display the image
-        axs[0].imshow(img)
-        axs[0].set_title('Image')
-        axs[0].axis('off')
-        # Display the combined mask
-        axs[1].imshow(combined_mask, cmap='gray')
-        axs[1].set_title('Combined Mask')
-        axs[1].axis('off')
-        plt.show()
-
-def display_masks_one_by_one(iterator):
-    while True:
-        try:
-            # Get a batch of data
-            img, target = next(iterator)
-        except StopIteration:
-            # If no more data, break the loop
-            break
-        img = img[0]  # First image in the batch
-        # Convert tensor to numpy array for visualization
-        img = img.permute(1, 2, 0).numpy()  # Convert from (C, H, W) to (H, W, C)
-        i = 0
-
-        for i in range(len(target[0]['masks'])):
-            mask = target[0]['masks'][i]  # First mask in the batch
-            mask = mask.numpy()
-            # Plot the image and mask side by side
+            # Plot the image and combined mask side by side
             fig, axs = plt.subplots(1, 2, figsize=(10, 5))
             # Display the image
             axs[0].imshow(img)
             axs[0].set_title('Image')
             axs[0].axis('off')
             # Display the mask
-            axs[1].imshow(mask, cmap='gray')
-            axs[1].set_title('Mask')
+            if class_colors:
+                axs[1].imshow(combined_mask)
+            else:
+                axs[1].imshow(combined_mask, cmap='gray')
+            axs[1].set_title('Segmentation Mask')
             axs[1].axis('off')
-            plt.show()
+            plt.draw()
+            plt.pause(0.001)  # Pause to allow the figure to be drawn
+            input("Press Enter to continue, or Ctrl+C to exit...")
+            plt.close(fig)
+    except KeyboardInterrupt:
+        print("Interrupted by user.")
+        plt.ioff()
+        return
 
 
 if __name__ == "__main__":
 
-    config = {}
-    config['dataset_dir'] = r"/root/wool_data/AWI"
-    config['num_samples'] = 3 # Here it is the number of target-lable pair to visualise
-    config['batch_size'] = 1 # display_all_masks_at_once() only shows the first image in the batch
+    config = {
+        'split': 'random_split',
+        'batch_size': 1
+    }
 
-    data_loader, data_loader_test = data_loaders(
-        config, T.get_transform(train=True), T.get_transform(train=False))
-    
-    visualise_dataloader(data_loader)
-    # visualise_specific_pair(sys.argv[1])
+    # Retrieve the transformations
+    train_transforms, val_transforms = get_transforms(input_size=(520, 520))
+
+    # Use them when creating DataLoader objects
+    train_loader, val_loader = get_dataloaders(split_set=config['split'],
+                                            batch_size=config['batch_size'],
+                                            train_transforms=train_transforms,
+                                            val_transforms=val_transforms)
+    visualise_dataloader(train_loader)

@@ -1,4 +1,6 @@
 note: "TEST TRAIN"
+# dataset_path: '/media/quanvu/ApplesQV/APPLE_DATA'
+dataset_path: '/root/APPLE_DATA'
 
 num_classes: 2
 epochs: 25

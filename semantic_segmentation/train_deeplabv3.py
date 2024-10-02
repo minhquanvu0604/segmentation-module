@@ -10,11 +10,10 @@ import yaml
 import numpy as np
 import torch
 
-from semantic_segmentation.config.config import TRAIN_CONFIG
+from semantic_segmentation.config.config import TRAIN_CONFIG, DATASET_PATH
 from semantic_segmentation.utils import configure_logger
 from semantic_segmentation.model import get_model, print_model_info
 from semantic_segmentation.data.dataloader import get_transforms, get_dataloaders
-from semantic_segmentation.data import DATASET_PATH
 from semantic_segmentation.utils import SaveBestModel, EarlyStopping, save_model, colorstr
 from semantic_segmentation.validate import validate, pix_acc, save_plots
 
@@ -29,8 +28,10 @@ def train(config):
 
     # TRAIN SETUP ------------------------------------------------
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    device = 'cpu'  # For testing
+    # device = 'cpu'  # For testing
     txt_logger.info(colorstr("yellow", "bold", f"Device: {device}"))
+    txt_logger.info(colorstr("green", "bold", f"Number of GPUs: {torch.cuda.device_count()}"))
+    txt_logger.info(colorstr("yellow", "bold", f"Batch size: {config['batch_size']}"))
 
     # Model
     model = get_model(config['num_classes'], pretrained=True).to(device)
@@ -93,6 +94,7 @@ def train(config):
         txt_logger.info(f"EPOCH: {epoch + 1}/{num_epochs}")
         current_lr = scheduler.get_last_lr()[0]
         txt_logger.info(f"Current Learning Rate: {current_lr}")
+        txt_logger.info('----')
 
         # TRAINING PHASE ------------------------------------------------
         model.train()
