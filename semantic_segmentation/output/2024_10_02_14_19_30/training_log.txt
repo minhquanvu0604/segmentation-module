@@ -1,0 +1,65 @@
+
+Config file: /home/quanvu/git/segmentation-module/semantic_segmentation/config/train_config.yaml
+Save directory: output/2024_10_02_14_19_30
+
+[33m[1mTEST TRAIN[0m
+
+--------- [START] Training started at: 2024-10-02 14:19:30.286717 ---------
+
+Device: cuda
+
+Model Parameters:
+	Total Parameters: 41,999,191
+	Trainable Parameters: 41,999,191
+
+Model Summary:
+=================================================================
+Layer (type:depth-idx)                   Param #
+=================================================================
+├─IntermediateLayerGetter: 1-1           --
+|    └─Conv2d: 2-1                       9,408
+|    └─BatchNorm2d: 2-2                  128
+|    └─ReLU: 2-3                         --
+|    └─MaxPool2d: 2-4                    --
+|    └─Sequential: 2-5                   --
+|    |    └─Bottleneck: 3-1              75,008
+|    |    └─Bottleneck: 3-2              70,400
+|    |    └─Bottleneck: 3-3              70,400
+|    └─Sequential: 2-6                   --
+|    |    └─Bottleneck: 3-4              379,392
+|    |    └─Bottleneck: 3-5              280,064
+|    |    └─Bottleneck: 3-6              280,064
+|    |    └─Bottleneck: 3-7              280,064
+|    └─Sequential: 2-7                   --
+|    |    └─Bottleneck: 3-8              1,512,448
+|    |    └─Bottleneck: 3-9              1,117,184
+|    |    └─Bottleneck: 3-10             1,117,184
+|    |    └─Bottleneck: 3-11             1,117,184
+|    |    └─Bottleneck: 3-12             1,117,184
+|    |    └─Bottleneck: 3-13             1,117,184
+|    └─Sequential: 2-8                   --
+|    |    └─Bottleneck: 3-14             6,039,552
+|    |    └─Bottleneck: 3-15             4,462,592
+|    |    └─Bottleneck: 3-16             4,462,592
+├─DeepLabHead: 1-2                       --
+|    └─ASPP: 2-9                         --
+|    |    └─ModuleList: 3-17             15,206,912
+|    |    └─Sequential: 3-18             328,192
+|    └─Conv2d: 2-10                      589,824
+|    └─BatchNorm2d: 2-11                 512
+|    └─ReLU: 2-12                        --
+|    └─Conv2d: 2-13                      514
+├─FCNHead: 1-3                           --
+|    └─Conv2d: 2-14                      2,359,296
+|    └─BatchNorm2d: 2-15                 512
+|    └─ReLU: 2-16                        --
+|    └─Dropout: 2-17                     --
+|    └─Conv2d: 2-18                      5,397
+=================================================================
+Total params: 41,999,191
+Trainable params: 41,999,191
+Non-trainable params: 0
+=================================================================
+------------------------------------------------------------
+EPOCH: 1/25
+Current Learning Rate: 0.001

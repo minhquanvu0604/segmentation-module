@@ -2,7 +2,7 @@ note: "TEST TRAIN"
 
 num_classes: 2
 epochs: 25
-batch_size: 16
+batch_size: 2
 
 # Split name (column name in the csv file)
 split: 'random_split'

@@ -1,6 +1,8 @@
 import os
-
+import random
+import numpy as np
 import pandas as pd
+
 from PIL import Image
 
 import torch
@@ -16,20 +18,23 @@ class AppleDataset(Dataset):
     def __init__(self, split_set, split, transforms=None):
         """
         Initialize the AppleDataset class.
+        This follows the specific structure of the dataset provided for the project, and its naming conventions.
 
         Parameters:
-            split (str): The dataset split to load
+            split_set (str): The type of split (column in the CSV file).
+            split (str): The dataset split to load ('train' or 'val').
             transforms (callable, optional): A function/transform to apply to the images and masks.
         """
         self.images_dir = IMAGE_PATH
         self.labels_dir = LABELS_PATH        
         self.transforms = transforms
-        
+        self.split = split
+
         # Load the Excel file
         self.df = pd.read_csv(CSV_PATH)
 
         # Filter rows based on the split argument
-        self.image_names = self.df[self.df[split_set].str.startswith(split, na=False)]['Image Name'].tolist()
+        self.image_names = self.df[self.df[split_set].str.startswith(self.split, na=False)]['Image Name'].tolist()
         print(f"Loaded {len(self.image_names)} images for the {split_set} split.")
 
     def __len__(self):
@@ -49,25 +54,17 @@ class AppleDataset(Dataset):
             tuple: A tuple containing the image tensor and target mask tensor.
         """
         # Get the image name
-        image_name = self.image_names[idx]
-
-        # Load the image
+        image_name = self.image_names[idx] # Naming convention: Image_1.jpeg
         image_path = os.path.join(self.images_dir, image_name)
-        raise ValueError(image_path)
-        for ext in ['.jpg', '.png']:
-            possible_path = image_path + ext
-            if os.path.isfile(possible_path):
-                image_path = possible_path
-                break
-        raise ValueError(possible_path)
         image = Image.open(image_path).convert("RGB")
 
         # Load the corresponding label mask
-        label_path = os.path.join(self.labels_dir, image_name)
-        label = Image.open(label_path)
-
-        # Convert the label image to a binary mask
-        label = (torch.tensor(label) == APPLE_LABEL).type(torch.long)  # Set apple pixels as 1, others as 0
+        label_name = image_name.replace('Image', 'Label') # Naming convention: Label_1.png
+        label_name = label_name.replace('.jpg', '.png')
+        label_path = os.path.join(self.labels_dir, label_name)
+        label = np.array(Image.open(label_path))
+        label = (label == APPLE_LABEL).astype(np.uint8) # Set apple pixels as 1, others as 0
+        label = Image.fromarray(label)
 
         # Apply any transformations if provided
         if self.transforms:
@@ -75,7 +72,6 @@ class AppleDataset(Dataset):
 
         return image, label
     
-
 def get_dataloaders(split_set, batch_size, num_workers=4, train_transforms=None, val_transforms=None):
     """
     Creates DataLoader objects for training and validation datasets.
@@ -90,6 +86,7 @@ def get_dataloaders(split_set, batch_size, num_workers=4, train_transforms=None,
         train_loader (DataLoader): DataLoader for the training dataset.
         val_loader (DataLoader): DataLoader for the validation dataset.
     """
+    print('Loading TRAINING data')
     train_dataset = AppleDataset(split_set=split_set, split='train', transforms=train_transforms)
     train_loader = DataLoader(
         train_dataset,
@@ -98,8 +95,9 @@ def get_dataloaders(split_set, batch_size, num_workers=4, train_transforms=None,
         num_workers=num_workers,
         pin_memory=True  # Speeds up data transfer to GPU
     )
+    print("Loaded {} training images".format(len(train_dataset)))
 
-    # Create the validation dataset and DataLoader
+    print('Loading VALIDATION data')
     val_dataset = AppleDataset(split_set=split_set, split='val', transforms=val_transforms)
     val_loader = DataLoader(
         val_dataset,
@@ -108,8 +106,56 @@ def get_dataloaders(split_set, batch_size, num_workers=4, train_transforms=None,
         num_workers=num_workers,
         pin_memory=True
     )
-
+    print("Loaded {} validation images".format(len(val_dataset)))
     return train_loader, val_loader
+
+class JointTransform:
+    """
+    Custom transformation class that handles transformations for both the input image and label mask.
+        
+    Parameters:
+        input_size (tuple): Desired input size (height, width) for resizing the image and mask.
+        is_train (bool): Indicates whether the transformation is for training (includes augmentations) or validation/testing.
+    """
+    
+    def __init__(self, input_size, is_train=True):
+        self.input_size = input_size
+        self.is_train = is_train
+        
+        # Augmentations that should apply only to training data
+        self.augmentations = transforms.Compose([
+            transforms.RandomHorizontalFlip(p=0.5),    # Randomly flip images horizontally
+            transforms.RandomRotation(degrees=15),     # Randomly rotate images by +/-15 degrees
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  # Random changes in brightness, contrast, etc.
+            transforms.RandomGrayscale(p=0.1),         # Randomly convert images to grayscale with a probability of 0.1
+            transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),  # Apply Gaussian blur
+        ])
+        
+        # Transformations to be applied to both train and validation data
+        # For Resize and Normalize, we use the same values as the ones used for training DeepLabV3 by PyTorch, refer to:
+        # https://pytorch.org/vision/stable/models/generated/torchvision.models.segmentation.deeplabv3_resnet50.html#torchvision.models.segmentation.deeplabv3_resnet50
+        self.common_transforms = transforms.Compose([
+            transforms.Resize(input_size, interpolation=transforms.InterpolationMode.BILINEAR),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+
+    def __call__(self, image, mask):
+        # Apply augmentations only if training
+        if self.is_train:
+            seed = random.randint(0, 99999)  # Seed ensures same transformation is applied to both image and mask
+            random.seed(seed)
+            image = self.augmentations(image)
+            random.seed(seed)
+            mask = self.augmentations(mask)
+        
+        # Apply the common transformations to the image
+        image = self.common_transforms(image)
+        
+        # Resize the mask and convert it to a tensor without normalization
+        mask = transforms.Resize(self.input_size, interpolation=transforms.InterpolationMode.NEAREST)(mask)
+        mask = torch.tensor(np.array(mask), dtype=torch.long)  # Keep mask as long type
+        return image, mask
 
 def get_transforms(input_size):
     """
@@ -121,31 +167,11 @@ def get_transforms(input_size):
     Returns:
         train_transforms (callable): Transformations to apply to the training data.
         val_transforms (callable): Transformations to apply to the validation data.
-    """
-    # Define transformations for the training set
-    # For Resize and Normalize, we use the same values as the ones used for training DeepLabV3 by PyTorch, refer to:
-    # https://pytorch.org/vision/stable/models/generated/torchvision.models.segmentation.deeplabv3_resnet50.html#torchvision.models.segmentation.deeplabv3_resnet50
-    train_transforms = transforms.Compose([
-        transforms.Resize(input_size, interpolation=transforms.InterpolationMode.BILINEAR),
-        transforms.RandomHorizontalFlip(p=0.5),     # Randomly flip images horizontally
-        transforms.RandomRotation(degrees=15),      # Randomly rotate images by +/-15 degrees
-        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),  # Random changes in brightness, contrast, saturation, hue
-        transforms.RandomGrayscale(p=0.1),          # Randomly convert images to grayscale with a probability of 0.1
-        transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),  # Random Gaussian blur
-        transforms.ToTensor(),                      # Convert to tensor
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], # Normalize with ImageNet statistics
-                             std=[0.229, 0.224, 0.225])
-    ])
-
-    # Define transformations for the validation set
-    val_transforms = transforms.Compose([
-        transforms.Resize(input_size),              # Resize validation images to the consistent input size
-        transforms.ToTensor(),                      # Convert to tensor
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-                             std=[0.229, 0.224, 0.225])  # Normalize with ImageNet statistics
-    ])
+    """ 
+    train_transforms = JointTransform(input_size, is_train=True)
+    val_transforms = JointTransform(input_size, is_train=False)
+    
     return train_transforms, val_transforms
-
 
 if __name__ == '__main__':
     # Retrieve the transformations

@@ -14,14 +14,13 @@ from semantic_segmentation.config.config import TRAIN_CONFIG
 from semantic_segmentation.utils import configure_logger
 from semantic_segmentation.model import get_model, print_model_info
 from semantic_segmentation.data.dataloader import get_transforms, get_dataloaders
-from semantic_segmentation.utils import SaveBestModel, EarlyStopping, save_model
+from semantic_segmentation.data import DATASET_PATH
+from semantic_segmentation.utils import SaveBestModel, EarlyStopping, save_model, colorstr
 from semantic_segmentation.validate import validate, pix_acc, save_plots
 
 
 def train(config):
 
-    # Log config
-    txt_logger.info(f"Config:\n{config}")
 
     save_dir = config['save_dir']
     valid_pred_dir = os.path.join(save_dir, 'valid_preds') # Save validation predictions
@@ -30,12 +29,24 @@ def train(config):
 
     # TRAIN SETUP ------------------------------------------------
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    txt_logger.info(f"Device: {device}")
+    device = 'cpu'  # For testing
+    txt_logger.info(colorstr("yellow", "bold", f"Device: {device}"))
 
     # Model
     model = get_model(config['num_classes'], pretrained=True).to(device)
-    input_size = (520, 520)
+    input_size = (800, 800) # (520, 520)
     print_model_info(txt_logger, model, input_size, device)
+    
+
+
+    # def print_tensor_size_hook(module, input, output):
+    #     if isinstance(output, torch.Tensor):
+    #         print(f"Layer: {module.__class__.__name__} | Output size: {output.size()}")
+    # # Register the hook
+    # for layer in model.modules():
+    #     layer.register_forward_hook(print_tensor_size_hook)
+
+
 
     # Optimiser
     if config['optimiser']['type'] == 'adam':
@@ -78,7 +89,7 @@ def train(config):
 
     num_epochs = config['epochs']
     for epoch in range(num_epochs):
-
+        txt_logger.info('------------------------------------------------------------') 
         txt_logger.info(f"EPOCH: {epoch + 1}/{num_epochs}")
         current_lr = scheduler.get_last_lr()[0]
         txt_logger.info(f"Current Learning Rate: {current_lr}")
@@ -92,6 +103,7 @@ def train(config):
             # If you're using GPUs, setting pin_memory=True and using non_blocking=True when moving data to the device can improve data transfer efficiency
             data, target = data.to(device, non_blocking=True), target.to(device, non_blocking=True)
 
+
             optimizer.zero_grad()
             outputs = model(data)['out']
             loss = criterion(outputs, target)
@@ -102,7 +114,7 @@ def train(config):
             running_loss += loss.item()
 
             # Calculate pixel accuracy
-            labeled, correct = pix_acc(target, outputs, config['num_classes'])
+            labeled, correct = pix_acc(target, outputs)
             running_labeled += labeled.sum()
             running_correct += correct
 
@@ -146,17 +158,24 @@ def train(config):
 
 if __name__ == '__main__':
 
+    # System check 
+    if not os.path.exists(DATASET_PATH):
+        raise FileNotFoundError(f"Dataset not found at: {DATASET_PATH}")
+
+    # Load train config
     train_config_path = os.path.abspath(os.path.join(os.path.dirname(__file__), TRAIN_CONFIG))
     with open(train_config_path, 'r') as file:
         config = yaml.safe_load(file)
 
+    # Set up directory to save outputs
     start_time = datetime.now()
     save_dir = os.path.join(os.path.dirname(__file__), 'output', start_time.strftime('%Y_%m_%d_%H_%M_%S'))
     os.makedirs(save_dir, exist_ok=True)
     config['save_dir'] = save_dir
 
-    # Loggers    
+    # Loggers
     txt_logger = configure_logger(save_dir)
+    txt_logger.info(f"\nConfig file: {train_config_path}")
 
     # Save config
     with open(os.path.join(save_dir, 'config_used.yaml'), 'w') as file:
@@ -165,14 +184,14 @@ if __name__ == '__main__':
 
 
     # ------- START TRAINING ---------
-    txt_logger.info(config['note'])
+    txt_logger.info("\n" + colorstr("yellow", "bold", config['note']) + "\n")
     txt_logger.info(f"--------- [START] Training started at: {start_time} ---------\n")
 
-    try:
-        train(config)
-    except Exception as e:
-        txt_logger.error(f"Training interrupted due to error: {str(e)}", exc_info=True)
-        raise e
+    # try:
+    train(config)
+    # except Exception as e:
+    #     txt_logger.error(f"Training interrupted due to error: {str(e)}", exc_info=True)
+    #     raise e
     
     end_time = datetime.now()
     txt_logger.info(f"--------- [COMPLETE] Training finished at: {end_time} ---------\n")
