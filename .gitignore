@@ -8,5 +8,5 @@ __pycache__/
 .vscode/
 
 # Output files and generated directories
-semantic_segmentation/output/
+deeplabv3_apples/output/
 

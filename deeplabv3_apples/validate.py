@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import cv2
 import torch
 
-from semantic_segmentation.config.config import LABEL_COLOR_LIST
+from deeplabv3_apples.config.config import LABEL_COLOR_LIST
 
 
 @torch.no_grad()

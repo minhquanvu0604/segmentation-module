@@ -12,7 +12,7 @@ from torchvision.transforms import functional as F
 
 
 # Internal imports
-from semantic_segmentation.config.config import CSV_PATH, IMAGE_PATH, LABELS_PATH, APPLE_LABEL
+from deeplabv3_apples.config.config import CSV_PATH, IMAGE_PATH, LABELS_PATH, APPLE_LABEL
 
 
 class AppleDataset(Dataset):

@@ -10,8 +10,8 @@ import pandas as pd
 from torchvision import transforms
 import torchvision.transforms.functional as F
 
-from semantic_segmentation.config.config import INPUT_SIZE, CSV_PATH
-from semantic_segmentation.model import get_model
+from deeplabv3_apples.config.config import INPUT_SIZE, CSV_PATH
+from deeplabv3_apples.model import get_model
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -21,12 +21,12 @@ logger = logging.getLogger('Test Predict')
 
 
 # Main function for inference
-def main_inference(split, model_path, image_folder, input_size, output_folder=None):
+def main_inference(split, model_path, image_folder, input_size, num_classes, output_folder=None):
 
     if output_folder:
         os.makedirs(output_folder, exist_ok=True)
 
-    model = load_model(model_path, num_classes=2)
+    model = load_model(model_path, num_classes=num_classes)
     test_images = get_test_images(split)
 
     for image_name in os.listdir(image_folder):
@@ -55,6 +55,9 @@ def main_inference(split, model_path, image_folder, input_size, output_folder=No
 
 
 def load_model(model_path, num_classes):
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found at {model_path}")
+
     logger.info(f"Loading model from {model_path}")
     model = get_model(num_classes=num_classes, pretrained=False)
     
@@ -151,9 +154,11 @@ def get_test_images(split_set):
 if __name__ == "__main__":
 
     split = 'random_split'
-    model_path = '/root/segmentation-module/semantic_segmentation/output/2024_10_02_23_37_35/model.pth'
-    image_folder = '/root/APPLE_DATA/images-Fuji'
+    # model_path = '/root/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pth'
+    model_path = '/home/quanvu/git/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pth'
+    image_folder = '/home/quanvu/uts/APPLE_DATA/images-Fuji'
     output_folder = None
     # threshold = 0.5  # Threshold for classifying apples
+    num_classes = 2
 
-    main_inference(split, model_path, image_folder, INPUT_SIZE, output_folder=output_folder)
+    main_inference(split, model_path, image_folder, INPUT_SIZE, num_classes, output_folder=output_folder)

@@ -10,12 +10,12 @@ import yaml
 import numpy as np
 import torch
 
-from semantic_segmentation.config.config import INPUT_SIZE, TRAIN_CONFIG, DATASET_PATH
-from semantic_segmentation.utils import configure_logger
-from semantic_segmentation.model import get_model, print_model_info
-from semantic_segmentation.data.dataloader import get_transforms, get_dataloaders
-from semantic_segmentation.utils import SaveBestModel, EarlyStopping, save_model, colorstr
-from semantic_segmentation.validate import validate, pix_acc, save_plots
+from deeplabv3_apples.config.config import INPUT_SIZE, TRAIN_CONFIG, DATASET_PATH
+from deeplabv3_apples.utils import configure_logger
+from deeplabv3_apples.model import get_model, print_model_info
+from deeplabv3_apples.data.dataloader import get_transforms, get_dataloaders
+from deeplabv3_apples.utils import SaveBestModel, EarlyStopping, save_model, colorstr
+from deeplabv3_apples.validate import validate, pix_acc, save_plots
 
 
 def train(config):

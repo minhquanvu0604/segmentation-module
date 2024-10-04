@@ -7,7 +7,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
-from semantic_segmentation.data.dataloader import get_transforms, get_dataloaders
+from deeplabv3_apples.data.dataloader import get_transforms, get_dataloaders
 
 
 def visualise_dataloader(data_loader):
