@@ -1,0 +1,12 @@
+# Python bytecode and cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyc
+
+# VSCode project files
+.vscode/
+
+# Output files and generated directories
+semantic_segmentation/output/
+

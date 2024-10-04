@@ -1,0 +1,22 @@
+services:
+  wool_container:
+    image: apple_image:latest
+    container_name: apple_container
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all # the number of GPU devices that should be reserved = default
+              capabilities: [gpu]
+    environment:
+      DISPLAY: $DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # - /media/quanvu/ApplesQV/APPLE_DATA:/root/APPLE_DATA # Dataset for training, in USB drive
+      - /home/quanvu/git/segmentation-module:/root/segmentation-module # Source code
+      - /home/quanvu/uts/APPLE_DATA:/root/APPLE_DATA # Dataset for training, in local drive
+    network_mode: host
+    ipc: host
+    stdin_open: true  # Equivalent to -i, keeps stdin open = default
+    tty: true  # Equivalent to -t, allocates a TTY = default

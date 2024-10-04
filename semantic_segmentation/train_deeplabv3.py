@@ -10,7 +10,7 @@ import yaml
 import numpy as np
 import torch
 
-from semantic_segmentation.config.config import TRAIN_CONFIG, DATASET_PATH
+from semantic_segmentation.config.config import INPUT_SIZE, TRAIN_CONFIG, DATASET_PATH
 from semantic_segmentation.utils import configure_logger
 from semantic_segmentation.model import get_model, print_model_info
 from semantic_segmentation.data.dataloader import get_transforms, get_dataloaders
@@ -19,7 +19,6 @@ from semantic_segmentation.validate import validate, pix_acc, save_plots
 
 
 def train(config):
-
 
     save_dir = config['save_dir']
     valid_pred_dir = os.path.join(save_dir, 'valid_preds') # Save validation predictions
@@ -32,23 +31,12 @@ def train(config):
     txt_logger.info(colorstr("yellow", "bold", f"Device: {device}"))
     txt_logger.info(colorstr("green", "bold", f"Number of GPUs: {torch.cuda.device_count()}"))
     txt_logger.info(colorstr("yellow", "bold", f"Batch size: {config['batch_size']}"))
+    txt_logger.info("Split set: {}".format(config['split']))
 
     # Model
     model = get_model(config['num_classes'], pretrained=True).to(device)
-    input_size = (800, 800) # (520, 520)
-    print_model_info(txt_logger, model, input_size, device)
+    print_model_info(txt_logger, model, INPUT_SIZE, device)
     
-
-
-    # def print_tensor_size_hook(module, input, output):
-    #     if isinstance(output, torch.Tensor):
-    #         print(f"Layer: {module.__class__.__name__} | Output size: {output.size()}")
-    # # Register the hook
-    # for layer in model.modules():
-    #     layer.register_forward_hook(print_tensor_size_hook)
-
-
-
     # Optimiser
     if config['optimiser']['type'] == 'adam':
         optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'])
@@ -72,7 +60,7 @@ def train(config):
     else:
         raise ValueError(f"Invalid loss function: {config['loss']}")
     
-    train_transforms, val_transforms = get_transforms(input_size)
+    train_transforms, val_transforms = get_transforms(INPUT_SIZE)
     train_loader, val_loader = get_dataloaders(split_set=config['split'],
                                             batch_size=config['batch_size'],
                                             train_transforms=train_transforms,
@@ -189,11 +177,7 @@ if __name__ == '__main__':
     txt_logger.info("\n" + colorstr("yellow", "bold", config['note']) + "\n")
     txt_logger.info(f"--------- [START] Training started at: {start_time} ---------\n")
 
-    # try:
     train(config)
-    # except Exception as e:
-    #     txt_logger.error(f"Training interrupted due to error: {str(e)}", exc_info=True)
-    #     raise e
     
     end_time = datetime.now()
     txt_logger.info(f"--------- [COMPLETE] Training finished at: {end_time} ---------\n")
