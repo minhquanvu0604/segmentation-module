@@ -8,14 +8,20 @@ export CMAKE_PREFIX_PATH=/opt/libtorch:$CMAKE_PREFIX_PATH
 ```
  
 
-# Infer the model in Cpp
-## Making model_inference_cpp a catkin package
+# Infer the model in Python
+For fast prototyping
+
+
+
+# Infer the model in Cpp (POSTPONED)
+Inference in Cpp so it can be integrated with MVPS nodelet system.
+## Making model_inference a catkin package
 Only for easy discovery inside a catkin workspace, the package doesn't depend on ROS
 
 
 
 
-## (POSTPONED) Making model_inference_cpp a cpp codebass without catkin - CMakeLists_non_catkin.txt
+## (POSTPONED) Making model_inference a cpp codebass without catkin - CMakeLists_non_catkin.txt
 After training, model.pth is obtain, which needs to be converted to model.pt using `export.py`.
 
 `segmentation_module_ros` is a ROS catkin package. Include only that directory in the catkin workspace. 
@@ -23,9 +29,9 @@ After training, model.pth is obtain, which needs to be converted to model.pt usi
 `model_inference` library will need to be built from source so it can be linked against by the ROS node. 
 Check its CMakeLists.txt for notes
 
-To build model_inference_cpp library and make it accessible to segmentation_module_ros 
+To build model_inference library and make it accessible to segmentation_module_ros 
 ```bash
-cd segmentation-model/model_inference_cpp
+cd segmentation-model/model_inference
 mkdir build && cd build
 cmake -DCMAKE_INSTALL_PREFIX=/absolute/path/to/segmentation-model/install ..
 make
@@ -33,7 +39,7 @@ make install
 ```
 CMAKE_INSTALL_PREFIX is a CMake variable that specifies the directory prefix where make install will install your files.
 
-Export the path so that model_inference_cpp can be found
+Export the path so that model_inference can be found
 ```bash
 export CMAKE_PREFIX_PATH=/absolute/path/to/segmentation-model/install:$CMAKE_PREFIX_PATH
 ```

@@ -10,7 +10,7 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <!-- Execution dependencies -->
-  <exec_depend>model_inference_cpp</exec_depend>
+  <exec_depend>model_inference</exec_depend>
   <exec_depend>segmentation_module_ros</exec_depend>
 
   <!-- Export -->
