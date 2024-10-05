@@ -1,74 +1,37 @@
-cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-project(${PROJECT_NAME}_cpp)
+cmake_minimum_required(VERSION 3.0.2)
+project(model_inference_cpp)
 
-find_package(Torch REQUIRED)
+find_package(catkin REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(Torch REQUIRED)
 
-set(CMAKE_CXX_STANDARD 14) ## Compile as C++14 or C++11
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+
+
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS
+  DEPENDS OpenCV Torch
+)
 
 include_directories(
+  include
+  include/${PROJECT_NAME}
+  ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${TORCH_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/include
 )
 
-add_library(${PROJECT_NAME} STATIC
-  src/ModelInference.cpp
+add_library(${PROJECT_NAME}
+  src/model_inference.cpp
 )
+
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(${PROJECT_NAME}
-  ${OpenCV_LIBS}
+  ${OpenCV_LIBRARIES}
   ${TORCH_LIBRARIES}
-)
-
-# Specify include directories for consumers
-target_include_directories(${PROJECT_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-)
-
-# Installation rules
-install(TARGETS ${PROJECT_NAME}
-  EXPORT ${PROJECT_NAME}Targets
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
-install(DIRECTORY include/
-  DESTINATION include
-)
-
-# Export the targets for use with find_package
-export(EXPORT ${PROJECT_NAME}Targets
-  FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake"
-  NAMESPACE ${PROJECT_NAME}::
-)
-
-# Generate and install a package configuration file
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  VERSION 1.0
-  COMPATIBILITY AnyNewerVersion
-)
-
-configure_package_config_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}Config.cmake.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  INSTALL_DESTINATION lib/cmake/${PROJECT_NAME}
-)
-
-install(
-  EXPORT ${PROJECT_NAME}Targets
-  FILE ${PROJECT_NAME}Targets.cmake
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION lib/cmake/${PROJECT_NAME}
-)
-
-install(
-  FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-  DESTINATION lib/cmake/${PROJECT_NAME}
 )

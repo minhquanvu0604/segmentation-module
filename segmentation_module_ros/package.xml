@@ -2,18 +2,9 @@
 <package format="2">
   <name>segmentation_module_ros</name>
   <version>0.0.0</version>
-  <description>The segmentation_module_ros package</description>
-
-  <!-- One maintainer tag required, multiple allowed, one person per tag -->
-  <!-- Example:  -->
-  <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="quanvu@todo.todo">quanvu</maintainer>
-
-
-  <!-- One license tag required, multiple allowed, one license per tag -->
-  <!-- Commonly used license strings: -->
-  <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+  <description>ROS wrapper for model_inference_cpp</description>
+  <maintainer email="quanvu0604@gmail.com">quanvu</maintainer>
+  <license>MIT</license>
 
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
@@ -50,10 +41,23 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
 
+  <!-- Build dependencies -->
+  <build_depend>roscpp</build_depend>
+  <!-- Use build_export_depend for packages you need in order to build against this package: -->
+  <build_export_depend>model_inference_cpp</build_export_depend>
+  <!-- Other dependencies -->
+  <build_depend>model_inference_cpp</build_depend>
+  <build_depend>OpenCV</build_depend>
+  <build_depend>Torch</build_depend>
 
-  <!-- The export tag contains other, unspecified, tags -->
+  <!-- Execution dependencies -->
+  <exec_depend>roscpp</exec_depend>
+  <!-- Other dependencies -->
+  <exec_depend>model_inference_cpp</exec_depend>
+  <exec_depend>OpenCV</exec_depend>
+  <exec_depend>Torch</exec_depend>
+
   <export>
-    <!-- Other tools can request additional information be placed here -->
-
+    <build_type>cmake</build_type>
   </export>
 </package>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>segmentation_module</name>
+  <version>0.1.0</version>
+  <description>Metapackage for segmentation modules</description>
+  <maintainer email="quanvu0604@gmail.com">quanvu</maintainer>  
+  <license>MIT</license>
+
+  <!-- Build tool dependency -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Execution dependencies -->
+  <exec_depend>model_inference_cpp</exec_depend>
+  <exec_depend>segmentation_module_ros</exec_depend>
+
+  <!-- Export -->
+  <export>
+    <metapackage/>
+  </export>
+</package>
