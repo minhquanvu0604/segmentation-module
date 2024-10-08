@@ -9,11 +9,14 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
   <build_depend>OpenCV</build_depend>
   <build_depend>Torch</build_depend>
   <build_depend>pcl_ros</build_depend>
   <build_depend>pcl_conversions</build_depend>
 
+  <exec_depend>roscpp</exec_depend>
   <exec_depend>OpenCV</exec_depend>
   <exec_depend>Torch</exec_depend>
   <exec_depend>pcl_ros</exec_depend>

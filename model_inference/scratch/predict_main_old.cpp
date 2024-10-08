@@ -1,12 +1,12 @@
 #include "predict.cpp"
 
 
-// ./predict_main \
+// ./predict_demo \
         /home/quanvu/ros/apple_ws/src/segmentation_module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pt \
         /home/quanvu/uts/APPLE_DATA/few_test_images \
         /media/quanvu/T7\ Shield/APPLE_OUTPUT
 
-// ./predict_main \
+// ./predict_demo \
         /home/quanvu/ros/apple_ws/src/segmentation_module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pt \
         /home/quanvu/uts/APPLE_DATA/few_test_images \
         /media/quanvu/T7\ Shield/APPLE_OUTPUT
@@ -14,7 +14,7 @@
 
 int main(int argc, const char* argv[]) {
     if (argc != 4) {
-        std::cerr << "Usage: ./predict_main <path-to-exported-script-module> <image-folder> <output-folder>" << std::endl;
+        std::cerr << "Usage: ./predict_demo <path-to-exported-script-module> <image-folder> <output-folder>" << std::endl;
         return -1;
     }
 
@@ -53,9 +53,13 @@ int main(int argc, const char* argv[]) {
             std::cout << "\nProcessing: " << image_name << std::endl;
 
             // Preprocess the image
-            auto original_image = cv::imread(image_path);
+            cv::Mat original_image = cv::imread(image_path);
+            cv::Mat image = cv::imread(image_path, cv::IMREAD_COLOR);
             std::cout <<"Preprocess image" << std::endl;
-            auto image_tensor = preprocess_image(image_path, input_size);
+            if (image.empty()) 
+                std::cerr << "Error loading image: " << image_path << std::endl;
+            
+            auto image_tensor = preprocess_image(image, input_size);
 
             if (!image_tensor.defined()) {
                 continue; // Skip if image loading failed

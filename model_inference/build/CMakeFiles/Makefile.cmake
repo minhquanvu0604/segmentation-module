@@ -14,6 +14,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/3.16.3/CMakeSystem.cmake"
   "detect_cuda_compute_capabilities.cu"
   "detect_cuda_version.cc"
+  "../cmake/model_inferenceConfig.cmake.in"
   "/opt/libtorch/share/cmake/Caffe2/Caffe2Config.cmake"
   "/opt/libtorch/share/cmake/Caffe2/Caffe2Targets-release.cmake"
   "/opt/libtorch/share/cmake/Caffe2/Caffe2Targets.cmake"
@@ -34,6 +35,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/lib/x86_64-linux-gnu/cmake/opencv4/OpenCVConfig.cmake"
   "/usr/lib/x86_64-linux-gnu/cmake/opencv4/OpenCVModules-release.cmake"
   "/usr/lib/x86_64-linux-gnu/cmake/opencv4/OpenCVModules.cmake"
+  "/usr/share/cmake-3.16/Modules/BasicConfigVersion-AnyNewerVersion.cmake.in"
   "/usr/share/cmake-3.16/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-3.16/Modules/CMakeCUDAInformation.cmake"
   "/usr/share/cmake-3.16/Modules/CMakeCXXInformation.cmake"
@@ -42,6 +44,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake-3.16/Modules/CMakeGenericSystem.cmake"
   "/usr/share/cmake-3.16/Modules/CMakeInitializeConfigs.cmake"
   "/usr/share/cmake-3.16/Modules/CMakeLanguageInformation.cmake"
+  "/usr/share/cmake-3.16/Modules/CMakePackageConfigHelpers.cmake"
   "/usr/share/cmake-3.16/Modules/CMakeSystemSpecificInformation.cmake"
   "/usr/share/cmake-3.16/Modules/CMakeSystemSpecificInitialize.cmake"
   "/usr/share/cmake-3.16/Modules/CheckCSourceCompiles.cmake"
@@ -63,6 +66,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/usr/share/cmake-3.16/Modules/Platform/Linux-GNU.cmake"
   "/usr/share/cmake-3.16/Modules/Platform/Linux.cmake"
   "/usr/share/cmake-3.16/Modules/Platform/UnixPaths.cmake"
+  "/usr/share/cmake-3.16/Modules/WriteBasicConfigVersionFile.cmake"
   )
 
 # The corresponding makefile is:
@@ -73,11 +77,14 @@ set(CMAKE_MAKEFILE_OUTPUTS
 
 # Byproducts of CMake generate step:
 set(CMAKE_MAKEFILE_PRODUCTS
+  "model_inferenceConfigVersion.cmake"
+  "model_inferenceConfig.cmake"
+  "model_inferenceConfig.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/predict_demo.dir/DependInfo.cmake"
   "CMakeFiles/model_inference.dir/DependInfo.cmake"
-  "CMakeFiles/predict_main.dir/DependInfo.cmake"
   )

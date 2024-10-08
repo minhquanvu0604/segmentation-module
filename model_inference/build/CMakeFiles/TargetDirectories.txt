@@ -2,7 +2,7 @@
 /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/install.dir
 /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/list_install_components.dir
 /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/rebuild_cache.dir
+/home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/predict_demo.dir
 /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/edit_cache.dir
 /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/model_inference.dir
 /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/install/strip.dir
-/home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/predict_main.dir

@@ -10,7 +10,6 @@ from PIL import Image
 import pandas as pd
 
 from torchvision import transforms
-import torchvision.transforms.functional as F
 
 from deeplabv3_apples.config.config import INPUT_SIZE, CSV_PATH
 from deeplabv3_apples.model import get_model

@@ -157,6 +157,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named predict_demo
+
+# Build rule for target.
+predict_demo: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 predict_demo
+.PHONY : predict_demo
+
+# fast build rule for target.
+predict_demo/fast:
+	$(MAKE) -f CMakeFiles/predict_demo.dir/build.make CMakeFiles/predict_demo.dir/build
+.PHONY : predict_demo/fast
+
+#=============================================================================
 # Target rules for targets named model_inference
 
 # Build rule for target.
@@ -168,19 +181,6 @@ model_inference: cmake_check_build_system
 model_inference/fast:
 	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/build
 .PHONY : model_inference/fast
-
-#=============================================================================
-# Target rules for targets named predict_main
-
-# Build rule for target.
-predict_main: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 predict_main
-.PHONY : predict_main
-
-# fast build rule for target.
-predict_main/fast:
-	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/build
-.PHONY : predict_main/fast
 
 src/predict.o: src/predict.cpp.o
 
@@ -209,32 +209,32 @@ src/predict.cpp.s:
 	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/src/predict.cpp.s
 .PHONY : src/predict.cpp.s
 
-src/predict_main.o: src/predict_main.cpp.o
+src/predict_demo.o: src/predict_demo.cpp.o
 
-.PHONY : src/predict_main.o
+.PHONY : src/predict_demo.o
 
 # target to build an object file
-src/predict_main.cpp.o:
-	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/src/predict_main.cpp.o
-.PHONY : src/predict_main.cpp.o
+src/predict_demo.cpp.o:
+	$(MAKE) -f CMakeFiles/predict_demo.dir/build.make CMakeFiles/predict_demo.dir/src/predict_demo.cpp.o
+.PHONY : src/predict_demo.cpp.o
 
-src/predict_main.i: src/predict_main.cpp.i
+src/predict_demo.i: src/predict_demo.cpp.i
 
-.PHONY : src/predict_main.i
+.PHONY : src/predict_demo.i
 
 # target to preprocess a source file
-src/predict_main.cpp.i:
-	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/src/predict_main.cpp.i
-.PHONY : src/predict_main.cpp.i
+src/predict_demo.cpp.i:
+	$(MAKE) -f CMakeFiles/predict_demo.dir/build.make CMakeFiles/predict_demo.dir/src/predict_demo.cpp.i
+.PHONY : src/predict_demo.cpp.i
 
-src/predict_main.s: src/predict_main.cpp.s
+src/predict_demo.s: src/predict_demo.cpp.s
 
-.PHONY : src/predict_main.s
+.PHONY : src/predict_demo.s
 
 # target to generate assembly for a file
-src/predict_main.cpp.s:
-	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/src/predict_main.cpp.s
-.PHONY : src/predict_main.cpp.s
+src/predict_demo.cpp.s:
+	$(MAKE) -f CMakeFiles/predict_demo.dir/build.make CMakeFiles/predict_demo.dir/src/predict_demo.cpp.s
+.PHONY : src/predict_demo.cpp.s
 
 # Help Target
 help:
@@ -246,16 +246,16 @@ help:
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
+	@echo "... predict_demo"
 	@echo "... edit_cache"
 	@echo "... model_inference"
 	@echo "... install/strip"
-	@echo "... predict_main"
 	@echo "... src/predict.o"
 	@echo "... src/predict.i"
 	@echo "... src/predict.s"
-	@echo "... src/predict_main.o"
-	@echo "... src/predict_main.i"
-	@echo "... src/predict_main.s"
+	@echo "... src/predict_demo.o"
+	@echo "... src/predict_demo.i"
+	@echo "... src/predict_demo.s"
 .PHONY : help
 
 

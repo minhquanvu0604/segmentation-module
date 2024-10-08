@@ -1,3 +1,5 @@
+# PYTHON VERSION, UNDONE
+
 import os, sys
 top_level_package = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')) # segmentation_module
 sys.path.insert(0, top_level_package)

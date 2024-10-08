@@ -1,2 +1,4 @@
+# Not catkin packages
 deeplabv3_apples/
 docker/
+model_inference/
