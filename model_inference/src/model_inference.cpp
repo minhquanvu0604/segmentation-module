@@ -1,5 +1,3 @@
-// model_inference.cpp
-
 #include "model_inference/model_inference.hpp"
 #include <iostream>
 #include <vector>

@@ -2,6 +2,8 @@ import os, sys
 top_level_package = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) # segmentation-module
 sys.path.insert(0, top_level_package)
 
+from typing import List, Union
+
 import torch
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -21,13 +23,26 @@ logger = logging.getLogger('Test Predict')
 
 
 # Main function for inference
-def main_inference(split, model_path, image_folder, input_size, num_classes, output_folder=None):
+def main_inference(split: Union[List, str], model_path, image_folder, input_size, num_classes, output_folder=None):
 
     if output_folder:
         os.makedirs(output_folder, exist_ok=True)
 
-    model = load_model(model_path, num_classes=num_classes)
-    test_images = get_test_images(split)
+    if model_path.endswith('.pt'):
+        logger.info('Loading model from script')
+        model = load_model_from_script(model_path)
+    else:
+        logger.info('Loading model from checkpoint')
+        model = load_model(model_path, num_classes=num_classes)
+    
+    if isinstance(split, str):
+        test_images = get_test_images(split)
+        logger.info(f"Inferring split name {split} with {len(test_images)} images in {image_folder}")
+    if isinstance(split, List) and isinstance(split[0], str):
+        test_images = split
+        logger.info(f"Inferring specific {len(test_images)} images in {image_folder}")
+    else:
+        raise ValueError("Invalid split type. Must be a string (split name) or list of string (image names).")
 
     for image_name in os.listdir(image_folder):
         if image_name.endswith(('.jpg', '.png', '.jpeg')):
@@ -67,6 +82,17 @@ def load_model(model_path, num_classes):
     # Load only the model weights, ignoring auxiliary classifier keys
     model.load_state_dict(checkpoint['model_state_dict'], strict=False)
     
+    model.to(device)
+    model.eval()
+    logger.info("Model loaded successfully.")
+    return model
+
+def load_model_from_script(model_path):
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found at {model_path}")
+
+    logger.info(f"Loading model from {model_path}")
+    model = torch.jit.load(model_path)
     model.to(device)
     model.eval()
     logger.info("Model loaded successfully.")
@@ -150,15 +176,68 @@ def get_test_images(split_set):
     image_names = df[df[split_set].str.startswith('test', na=False)]['Image Name'].tolist()
     return image_names
 
+def copy_test_images(image_folder, destination_folder, split_set):
+    """
+    Copies test images to a different folder.
+    
+    Args:
+    - image_folder (str): Path to the folder containing the images.
+    - destination_folder (str): Path to the folder where the test images will be copied.
+    - split_set (str): Column name from the CSV indicating the split.
+    """
+    import shutil
+
+    # Get the list of test images
+    test_images = get_test_images(split_set)
+    
+    # Create the destination folder if it doesn't exist
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
+    
+    # Copy the test images to the destination folder
+    for image_name in test_images:
+        source_image_path = os.path.join(image_folder, image_name)
+        destination_image_path = os.path.join(destination_folder, image_name)
+        
+        # Check if the source image exists before copying
+        if os.path.exists(source_image_path):
+            shutil.copy(source_image_path, destination_image_path)
+            print(f"Copied: {image_name}")
+        else:
+            print(f"Image not found: {image_name}")
 
 if __name__ == "__main__":
 
-    split = 'random_split'
+    # ----- All test images -----
+    # split = 'random_split'
     # model_path = '/root/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pth'
-    model_path = '/home/quanvu/git/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pth'
-    image_folder = '/home/quanvu/uts/APPLE_DATA/images-Fuji'
+    # image_folder = '/home/quanvu/uts/APPLE_DATA/images-Fuji'
+
+    # ----- Few test images -----
+    # split = ['Image_8.jpg']
+    # model_path = '/home/quanvu/git/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pth'
+    # image_folder = '/home/quanvu/uts/APPLE_DATA/few_test_images'
+
+    # ----- Load from script -----
+    split = ['Image_8.jpg']
+    model_path = '/home/quanvu/git/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pt'
+    image_folder = '/home/quanvu/uts/APPLE_DATA/few_test_images'
+
+
+
+    # -----Common config -----
     output_folder = None
     # threshold = 0.5  # Threshold for classifying apples
     num_classes = 2
+    input_size = INPUT_SIZE
 
-    main_inference(split, model_path, image_folder, INPUT_SIZE, num_classes, output_folder=output_folder)
+    main_inference(split, model_path, image_folder, input_size, num_classes, output_folder=output_folder)
+
+
+    # # Save the test images to a folder
+    # image_folder = '/home/quanvu/uts/APPLE_DATA/images-Fuji'
+    # destination_folder = '/home/quanvu/uts/APPLE_DATA/Fuji-testing-images'
+    # split_set = 'random_split'
+    # copy_test_images(image_folder, destination_folder, split_set)
+
+

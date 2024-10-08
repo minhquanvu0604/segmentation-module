@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference
+CMAKE_SOURCE_DIR = /home/quanvu/git/segmentation-module/model_inference
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference/build
+CMAKE_BINARY_DIR = /home/quanvu/git/segmentation-module/model_inference/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -126,9 +126,9 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference/build/CMakeFiles /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference/build/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -169,32 +169,72 @@ model_inference/fast:
 	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/build
 .PHONY : model_inference/fast
 
-src/model_inference.o: src/model_inference.cpp.o
+#=============================================================================
+# Target rules for targets named predict_main
 
-.PHONY : src/model_inference.o
+# Build rule for target.
+predict_main: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 predict_main
+.PHONY : predict_main
+
+# fast build rule for target.
+predict_main/fast:
+	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/build
+.PHONY : predict_main/fast
+
+src/predict.o: src/predict.cpp.o
+
+.PHONY : src/predict.o
 
 # target to build an object file
-src/model_inference.cpp.o:
-	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/src/model_inference.cpp.o
-.PHONY : src/model_inference.cpp.o
+src/predict.cpp.o:
+	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/src/predict.cpp.o
+.PHONY : src/predict.cpp.o
 
-src/model_inference.i: src/model_inference.cpp.i
+src/predict.i: src/predict.cpp.i
 
-.PHONY : src/model_inference.i
+.PHONY : src/predict.i
 
 # target to preprocess a source file
-src/model_inference.cpp.i:
-	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/src/model_inference.cpp.i
-.PHONY : src/model_inference.cpp.i
+src/predict.cpp.i:
+	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/src/predict.cpp.i
+.PHONY : src/predict.cpp.i
 
-src/model_inference.s: src/model_inference.cpp.s
+src/predict.s: src/predict.cpp.s
 
-.PHONY : src/model_inference.s
+.PHONY : src/predict.s
 
 # target to generate assembly for a file
-src/model_inference.cpp.s:
-	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/src/model_inference.cpp.s
-.PHONY : src/model_inference.cpp.s
+src/predict.cpp.s:
+	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/src/predict.cpp.s
+.PHONY : src/predict.cpp.s
+
+src/predict_main.o: src/predict_main.cpp.o
+
+.PHONY : src/predict_main.o
+
+# target to build an object file
+src/predict_main.cpp.o:
+	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/src/predict_main.cpp.o
+.PHONY : src/predict_main.cpp.o
+
+src/predict_main.i: src/predict_main.cpp.i
+
+.PHONY : src/predict_main.i
+
+# target to preprocess a source file
+src/predict_main.cpp.i:
+	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/src/predict_main.cpp.i
+.PHONY : src/predict_main.cpp.i
+
+src/predict_main.s: src/predict_main.cpp.s
+
+.PHONY : src/predict_main.s
+
+# target to generate assembly for a file
+src/predict_main.cpp.s:
+	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/src/predict_main.cpp.s
+.PHONY : src/predict_main.cpp.s
 
 # Help Target
 help:
@@ -209,9 +249,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... model_inference"
 	@echo "... install/strip"
-	@echo "... src/model_inference.o"
-	@echo "... src/model_inference.i"
-	@echo "... src/model_inference.s"
+	@echo "... predict_main"
+	@echo "... src/predict.o"
+	@echo "... src/predict.i"
+	@echo "... src/predict.s"
+	@echo "... src/predict_main.o"
+	@echo "... src/predict_main.i"
+	@echo "... src/predict_main.s"
 .PHONY : help
 
 

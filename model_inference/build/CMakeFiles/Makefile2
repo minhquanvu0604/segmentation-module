@@ -44,16 +44,17 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference
+CMAKE_SOURCE_DIR = /home/quanvu/git/segmentation-module/model_inference
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference/build
+CMAKE_BINARY_DIR = /home/quanvu/git/segmentation-module/model_inference/build
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
 all: CMakeFiles/model_inference.dir/all
+all: CMakeFiles/predict_main.dir/all
 
 .PHONY : all
 
@@ -64,6 +65,7 @@ preinstall:
 
 # The main recursive "clean" target.
 clean: CMakeFiles/model_inference.dir/clean
+clean: CMakeFiles/predict_main.dir/clean
 
 .PHONY : clean
 
@@ -74,14 +76,14 @@ clean: CMakeFiles/model_inference.dir/clean
 CMakeFiles/model_inference.dir/all:
 	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/depend
 	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/quanvu/ros/apple_ws/src/segmentation-module/model_inference/build/CMakeFiles --progress-num=1,2 "Built target model_inference"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles --progress-num=1,2 "Built target model_inference"
 .PHONY : CMakeFiles/model_inference.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/model_inference.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/model_inference.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/ros/apple_ws/src/segmentation-module/model_inference/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 0
 .PHONY : CMakeFiles/model_inference.dir/rule
 
 # Convenience name for target.
@@ -93,6 +95,33 @@ model_inference: CMakeFiles/model_inference.dir/rule
 CMakeFiles/model_inference.dir/clean:
 	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/clean
 .PHONY : CMakeFiles/model_inference.dir/clean
+
+#=============================================================================
+# Target rules for target CMakeFiles/predict_main.dir
+
+# All Build rule for target.
+CMakeFiles/predict_main.dir/all: CMakeFiles/model_inference.dir/all
+	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/depend
+	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles --progress-num=3,4 "Built target predict_main"
+.PHONY : CMakeFiles/predict_main.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/predict_main.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 4
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/predict_main.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 0
+.PHONY : CMakeFiles/predict_main.dir/rule
+
+# Convenience name for target.
+predict_main: CMakeFiles/predict_main.dir/rule
+
+.PHONY : predict_main
+
+# clean rule for target.
+CMakeFiles/predict_main.dir/clean:
+	$(MAKE) -f CMakeFiles/predict_main.dir/build.make CMakeFiles/predict_main.dir/clean
+.PHONY : CMakeFiles/predict_main.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

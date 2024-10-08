@@ -13,12 +13,12 @@ For fast prototyping
 
 
 
-# Infer the model in Cpp (POSTPONED)
+# Infer the model in Cpp 
 Inference in Cpp so it can be integrated with MVPS nodelet system.
-## Making model_inference a catkin package
-Only for easy discovery inside a catkin workspace, the package doesn't depend on ROS
 
+model_inference is a catkin package nly for easy discovery inside a catkin workspace, the package doesn't depend on ROS
 
+model_inference/src/predict and predict_main.cpp: C++ equivalent of deeplabv3_apples/predict.py
 
 
 ## (POSTPONED) Making model_inference a cpp codebass without catkin - CMakeLists_non_catkin.txt
@@ -46,5 +46,8 @@ export CMAKE_PREFIX_PATH=/absolute/path/to/segmentation-model/install:$CMAKE_PRE
 Specifies additional paths to search for packages when using find_package().
 
 If your library is installed in a directory that's not in CMake's default search paths (like /usr/local), you need to tell CMake where to find it
+
+# Test suite
+Implement this tutorial: https://pytorch.org/tutorials/advanced/cpp_export.html
 
  
