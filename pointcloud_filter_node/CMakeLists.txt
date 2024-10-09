@@ -22,11 +22,13 @@ find_package(model_inference REQUIRED)
 # -- ====== model_inference_INCLUDE_DIRS: /home/quanvu/ros/apple_ws/devel/include/model_inference ======
 # -- ====== model_inference_LIBRARIES: /home/quanvu/ros/apple_ws/devel/lib/libmodel_inference.so ======
 
+set(Torch_INCLUDE_DIRS ${TORCH_INCLUDE_DIRS}) 
+set(Torch_LIBRARIES ${TORCH_LIBRARIES})
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS roscpp sensor_msgs pcl_ros pcl_conversions
-  DEPENDS OpenCV Torch PCL
+  DEPENDS OpenCV PCL
 )
 
 if(NOT CMAKE_PREFIX_PATH) 
@@ -34,6 +36,8 @@ if(NOT CMAKE_PREFIX_PATH)
 endif()
 
 message(STATUS "====== CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH} ======")
+message(STATUS "====== TORCH_INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS} ======")
+message(STATUS "====== model_inference_LIBRARIES: ${model_inference_LIBRARIES} ======")
 
 include_directories(
   include
@@ -59,6 +63,7 @@ target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${TORCH_LIBRARIES}
+  ${model_inference_LIBRARIES}
   model_inference
 )
 

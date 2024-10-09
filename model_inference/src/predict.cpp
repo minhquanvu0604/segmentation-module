@@ -1,114 +1,164 @@
-#include <torch/script.h> // LibTorch
+// #include <torch/script.h> // LibTorch
+// #include <torch/torch.h>
+// #include <opencv2/opencv.hpp>
+// #include <filesystem> // C++17 for directory traversal
+// #include <iostream>
+// #include <memory>
+// #include "model_inference/predict.hpp"
+
+#include <torch/script.h>  // LibTorch
 #include <torch/torch.h>
 #include <opencv2/opencv.hpp>
-#include <filesystem> // C++17 for directory traversal
 #include <iostream>
 #include <memory>
 
-#include "model_inference/predict.hpp"
+#include "predict.hpp"
 
+class ModelInferenceImpl {
+public:
+    // Constructor to initialize the model and input size
+    ModelInferenceImpl(const std::string& model_path, const cv::Size& input_size) 
+        : input_size_(input_size) {
+        // Load the model
+        try {
+            model_ = torch::jit::load(model_path);
 
-// Constructor to initialize the model and input size
-ModelInference::ModelInference(const std::string& model_path, const cv::Size& input_size) 
-    : input_size_(input_size) {
-    // Load the model
-    try {
-        model_ = torch::jit::load(model_path);
-
-        // Move the model to GPU if available
-        if (torch::cuda::is_available()) {
-            model_.to(torch::kCUDA);
-            std::cout << "CUDA is available. Moving model to GPU." << std::endl;
-        } else {
-            model_.to(torch::kCPU);
-            std::cout << "CUDA is not available. Moving model to CPU." << std::endl;
+            // Move the model to GPU if available
+            if (torch::cuda::is_available()) {
+                model_.to(torch::kCUDA);
+                std::cout << "CUDA is available. Moving model to GPU." << std::endl;
+            } else {
+                model_.to(torch::kCPU);
+                std::cout << "CUDA is not available. Moving model to CPU." << std::endl;
+            }
+        } catch (const c10::Error& e) {
+            std::cerr << "Error loading the model from " << model_path << std::endl;
+            throw;
         }
-    } catch (const c10::Error& e) {
-        std::cerr << "Error loading the model from " << model_path << std::endl;
-        throw;
+
+        std::cout << "Model loaded successfully from " << model_path << std::endl;
     }
 
-    std::cout << "Model loaded successfully from " << model_path << std::endl;
-}
+    // Function to infer a single image
+    cv::Mat infer_single_image(const cv::Mat& image) {
+        if (image.empty()) {
+            std::cerr << "Error: Provided image is empty!" << std::endl;
+            return cv::Mat();
+        }
 
-// Function to infer a single image
-cv::Mat ModelInference::infer_single_image(const cv::Mat& image) {
-    if (image.empty()) {
-        std::cerr << "Error: Provided image is empty!" << std::endl;
-        return cv::Mat();
+        // Preprocess the image
+        auto image_tensor = preprocess_image(image, input_size_);
+
+        if (!image_tensor.defined()) {
+            std::cerr << "Error during image preprocessing!" << std::endl;
+            return cv::Mat();
+        }
+
+        // Inference
+        auto probability_map = infer(model_, image_tensor, image.size());
+
+        // Return the probability map
+        return probability_map;
     }
 
     // Preprocess the image
-    auto image_tensor = preprocess_image(image, input_size_);
+    torch::Tensor preprocess_image(cv::Mat image, const cv::Size& input_size) {
+        // Convert the image to float32 and scale values to [0, 1]
+        image.convertTo(image, CV_32F, 1.0 / 255.0);
+        cv::resize(image, image, input_size);
+        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
 
-    if (!image_tensor.defined()) {
-        std::cerr << "Error during image preprocessing!" << std::endl;
-        return cv::Mat();
+        auto tensor_image = torch::from_blob(image.data, {1, image.rows, image.cols, 3}, torch::kFloat32);
+        tensor_image = tensor_image.permute({0, 3, 1, 2});  // Change to CxHxW
+
+        // Normalize the image using the mean and std from torchvision
+        tensor_image = tensor_image.sub_(torch::tensor({0.485, 0.456, 0.406}).view({1, 3, 1, 1}))
+                                    .div_(torch::tensor({0.229, 0.224, 0.225}).view({1, 3, 1, 1}));
+
+        return tensor_image.clone();  // Return a deep copy of the tensor
     }
 
-    // Inference
-    auto probability_map = infer(model_, image_tensor, image.size());
+    // Run inference and get probability map
+    cv::Mat infer(torch::jit::script::Module& model, torch::Tensor& image_tensor, const cv::Size& original_size) {
+        model.eval();  // Ensure the model is in evaluation mode
 
-    // Return the probability map
-    return probability_map;
-}
+        // Move the image tensor to GPU if available
+        if (torch::cuda::is_available())
+            image_tensor = image_tensor.to(torch::kCUDA);
+        else
+            image_tensor = image_tensor.to(torch::kCPU);
 
-// Preprocess the image
-torch::Tensor ModelInference::preprocess_image(cv::Mat image, const cv::Size& input_size) {
-    // Convert the image to float32 and scale values to [0, 1]
-    image.convertTo(image, CV_32F, 1.0 / 255.0);
-    cv::resize(image, image, input_size);
-    cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+        // Inference
+        torch::NoGradGuard no_grad;  // Disable gradient computation
+        auto output = model.forward({image_tensor});  // Perform forward pass
+        torch::cuda::synchronize();  // After the forward pass
 
-    auto tensor_image = torch::from_blob(image.data, {1, image.rows, image.cols, 3}, torch::kFloat32);
-    tensor_image = tensor_image.permute({0, 3, 1, 2});  // Change to CxHxW
+        // Access the "out" key from the output dictionary (DeepLabV3 specific)
+        auto out_tensor = output.toGenericDict().at("out").toTensor();
 
-    // Normalize the image using the mean and std from torchvision
-    tensor_image = tensor_image.sub_(torch::tensor({0.485, 0.456, 0.406}).view({1, 3, 1, 1}))
-                                .div_(torch::tensor({0.229, 0.224, 0.225}).view({1, 3, 1, 1}));
+        // Get softmax probabilities and extract the apple class (index 1)
+        auto probabilities = torch::softmax(out_tensor, 1);
+        auto apple_prob = probabilities[0][1].unsqueeze(0);  // Take the class 1 (apples) and keep as 3D
 
-    return tensor_image.clone();  // Return a deep copy of the tensor
-}
+        // Fix: Add an extra dimension to make it a 4D tensor
+        apple_prob = apple_prob.unsqueeze(0); // Shape becomes [1, 1, height, width]
 
-// Run inference and get probability map
-cv::Mat ModelInference::infer(torch::jit::script::Module& model, torch::Tensor& image_tensor, const cv::Size& original_size) {
-    model.eval();  // Ensure the model is in evaluation mode
+        // Resize the probabilities to original size
+        auto resized_prob = torch::nn::functional::interpolate(
+            apple_prob,
+            torch::nn::functional::InterpolateFuncOptions()
+                .size(std::vector<int64_t>{original_size.height, original_size.width})
+                .mode(torch::kBilinear)
+                .align_corners(false)
+        );
 
-    // Move the image tensor to GPU if available
-    if (torch::cuda::is_available())
-        image_tensor = image_tensor.to(torch::kCUDA);
-    else
-        image_tensor = image_tensor.to(torch::kCPU);
+        // Convert to CPU and extract the data as a cv::Mat
+        resized_prob = resized_prob.squeeze().cpu();  // Remove batch and channel dimensions
 
-    // Inference
-    torch::NoGradGuard no_grad;  // Disable gradient computation
-    auto output = model.forward({image_tensor});  // Perform forward pass
-    torch::cuda::synchronize();  // After the forward pass
+        // Create cv::Mat with float data from the tensor
+        cv::Mat probability_map(original_size, CV_32F, resized_prob.data_ptr<float>());
 
-    // Access the "out" key from the output dictionary (DeepLabV3 specific)
-    auto out_tensor = output.toGenericDict().at("out").toTensor();
+        return probability_map;
+    }
+    
+private:
+    torch::jit::script::Module model_;
+    cv::Size input_size_;
+};
 
-    // Get softmax probabilities and extract the apple class (index 1)
-    auto probabilities = torch::softmax(out_tensor, 1);
-    auto apple_prob = probabilities[0][1].unsqueeze(0);  // Take the class 1 (apples) and keep as 3D
 
-    // Fix: Add an extra dimension to make it a 4D tensor
-    apple_prob = apple_prob.unsqueeze(0); // Shape becomes [1, 1, height, width]
+// // Internal implementation class
+// class ModelInferenceImpl {
+// public:
+//     ModelInferenceImpl(const std::string& model_path, const cv::Size& input_size)
+//         : input_size_(input_size) {
+//         // Load the model
+//         model_ = torch::jit::load(model_path);
+//         if (torch::cuda::is_available()) {
+//             model_.to(torch::kCUDA);
+//         } else {
+//             model_.to(torch::kCPU);
+//         }
+//     }
 
-    // Resize the probabilities to original size
-    auto resized_prob = torch::nn::functional::interpolate(
-        apple_prob,
-        torch::nn::functional::InterpolateFuncOptions()
-            .size(std::vector<int64_t>{original_size.height, original_size.width})
-            .mode(torch::kBilinear)
-            .align_corners(false)
-    );
+//     cv::Mat infer_single_image(const cv::Mat& image) {
+//         // Image preprocessing and inference here
+//         // ...
+//         return cv::Mat(); // Dummy return, replace with actual implementation
+//     }
 
-    // Convert to CPU and extract the data as a cv::Mat
-    resized_prob = resized_prob.squeeze().cpu();  // Remove batch and channel dimensions
+// private:
+//     torch::jit::script::Module model_;
+//     cv::Size input_size_;
+// };
 
-    // Create cv::Mat with float data from the tensor
-    cv::Mat probability_map(original_size, CV_32F, resized_prob.data_ptr<float>());
+// ModelInference methods
 
-    return probability_map;
+ModelInference::ModelInference(const std::string& model_path, const cv::Size& input_size)
+    : impl_(std::make_unique<ModelInferenceImpl>(model_path, input_size)) {}
+
+ModelInference::~ModelInference() = default;
+
+cv::Mat ModelInference::infer_single_image(const cv::Mat& image) {
+    return impl_->infer_single_image(image);
 }
