@@ -1,11 +1,3 @@
-// #include <torch/script.h> // LibTorch
-// #include <torch/torch.h>
-// #include <opencv2/opencv.hpp>
-// #include <filesystem> // C++17 for directory traversal
-// #include <iostream>
-// #include <memory>
-// #include "model_inference/predict.hpp"
-
 #include <torch/script.h>  // LibTorch
 #include <torch/torch.h>
 #include <opencv2/opencv.hpp>
@@ -120,7 +112,7 @@ public:
 
         return probability_map;
     }
-    
+
 private:
     torch::jit::script::Module model_;
     cv::Size input_size_;

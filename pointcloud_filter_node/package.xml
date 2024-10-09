@@ -53,7 +53,7 @@
   <!-- Other dependencies -->
   <build_depend>model_inference</build_depend>
   <build_depend>OpenCV</build_depend>
-  <build_depend>Torch</build_depend>
+  <build_depend>cv_bridge</build_depend>
 
   <!-- Execution dependencies -->
   <exec_depend>roscpp</exec_depend>
@@ -62,7 +62,7 @@
   <exec_depend>pcl_conversions</exec_depend>
   <exec_depend>model_inference</exec_depend>
   <exec_depend>OpenCV</exec_depend>
-  <exec_depend>Torch</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
 
   <export>
     <build_type>cmake</build_type>
