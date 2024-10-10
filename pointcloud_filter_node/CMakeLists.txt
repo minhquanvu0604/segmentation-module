@@ -20,8 +20,8 @@ find_package(PCL REQUIRED)
 find_package(model_inference REQUIRED)
 
 # Check the variables - OK
-message(STATUS "====== model_inference_INCLUDE_DIRS: ${model_inference_INCLUDE_DIRS} ======")
-message(STATUS "====== model_inference_LIBRARIES: ${model_inference_LIBRARIES} ======")
+# message(STATUS "====== model_inference_INCLUDE_DIRS: ${model_inference_INCLUDE_DIRS} ======")
+# message(STATUS "====== model_inference_LIBRARIES: ${model_inference_LIBRARIES} ======")
 # -- ====== model_inference_INCLUDE_DIRS: /home/quanvu/ros/apple_ws/devel/include/model_inference ======
 # -- ====== model_inference_LIBRARIES: /home/quanvu/ros/apple_ws/devel/lib/libmodel_inference.so ======
 
@@ -38,9 +38,9 @@ catkin_package(
 #     set(CMAKE_PREFIX_PATH $ENV{CMAKE_PREFIX_PATH})
 # endif()
 
-message(STATUS "====== CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH} ======")
-message(STATUS "====== TORCH_INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS} ======")
-message(STATUS "====== model_inference_LIBRARIES: ${model_inference_LIBRARIES} ======")
+# message(STATUS "====== CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH} ======")
+# message(STATUS "====== TORCH_INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS} ======")
+# message(STATUS "====== model_inference_LIBRARIES: ${model_inference_LIBRARIES} ======")
 
 include_directories(
   include

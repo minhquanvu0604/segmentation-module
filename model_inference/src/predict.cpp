@@ -118,34 +118,6 @@ private:
     cv::Size input_size_;
 };
 
-
-// // Internal implementation class
-// class ModelInferenceImpl {
-// public:
-//     ModelInferenceImpl(const std::string& model_path, const cv::Size& input_size)
-//         : input_size_(input_size) {
-//         // Load the model
-//         model_ = torch::jit::load(model_path);
-//         if (torch::cuda::is_available()) {
-//             model_.to(torch::kCUDA);
-//         } else {
-//             model_.to(torch::kCPU);
-//         }
-//     }
-
-//     cv::Mat infer_single_image(const cv::Mat& image) {
-//         // Image preprocessing and inference here
-//         // ...
-//         return cv::Mat(); // Dummy return, replace with actual implementation
-//     }
-
-// private:
-//     torch::jit::script::Module model_;
-//     cv::Size input_size_;
-// };
-
-// ModelInference methods
-
 ModelInference::ModelInference(const std::string& model_path, const cv::Size& input_size)
     : impl_(std::make_unique<ModelInferenceImpl>(model_path, input_size)) {}
 
