@@ -1,6 +1,4 @@
-note: "TEST TRAIN"
-# dataset_path: '/media/quanvu/ApplesQV/APPLE_DATA'
-dataset_path: '/root/APPLE_DATA'
+note: "TRAIN SECOND TIME WITH SYNTH"
 
 num_classes: 2
 epochs: 25
@@ -9,22 +7,38 @@ batch_size: 2
 # Split name (column name in the csv file)
 split: 'random_split'
 
+# Model
+lr: 0.001
+
 # Optimiser
 optimiser:
+  # adam (Adam)
+  # sgd (SGD)
+  # adamw (AdamW)
   type: adam
+  weight_decay: 0.01
 
 # Learning Rate
-lr: 0.001
 lr_scheduler:
-  type: step # StepLR
-
+  # step (StepLR)
+  # cosine_annealing (CosineAnnealingLR)
+  # exponential (ExponentialLR)
+  type: exponential 
+  
   # StepLR
-  step_size: 5
-  gamma: 0.5
+  # step_size: 5
+  # gamma: 0.5
   
   # CosineAnnealingLR
-  type: cosine_annealing
-  T_max: 10
+  # type: cosine_annealing
+  # T_max: 10
+
+  # ExponentialLR
+  gamma: 0.95
 
 # Criterion
+# cross_entropy (CrossEntropyLoss)
+# dice (DiceLoss)
+# cross_entropy_dice # Can't implement yet
+# bce (BCEWithLogitsLoss) # Can't implement yet
 loss: 'cross_entropy'

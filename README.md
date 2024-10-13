@@ -51,4 +51,8 @@ For fast prototyping
 # Test suite
 Implement this tutorial: https://pytorch.org/tutorials/advanced/cpp_export.html
 
- 
+# Singularity 
+```bash
+singularity pull docker://minhquanvu0604/apple_image:latest
+singularity shell --nv --bind /data/minhqvu:/data/minhqvu apple_image_latest.sif
+```

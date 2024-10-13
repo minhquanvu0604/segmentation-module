@@ -2,17 +2,18 @@ import os, sys
 top_level_package = os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) # segmentation-module
 sys.path.insert(0, top_level_package)
 
-
 from datetime import datetime
+import shutil
 from tqdm import tqdm
 import yaml
 
 import numpy as np
 import torch
 
-from deeplabv3_apples.config.config import INPUT_SIZE, TRAIN_CONFIG, DATASET_PATH
+from deeplabv3_apples.config.config import INPUT_SIZE, TRAIN_CONFIG, DATASET_PATH, CSV_PATH
 from deeplabv3_apples.utils import configure_logger
 from deeplabv3_apples.model import get_model, print_model_info
+from deeplabv3_apples.engine import get_optimiser, get_scheduler, get_loss
 from deeplabv3_apples.data.dataloader import get_transforms, get_dataloaders
 from deeplabv3_apples.utils import SaveBestModel, EarlyStopping, save_model, colorstr
 from deeplabv3_apples.validate import validate, pix_acc, save_plots
@@ -27,39 +28,29 @@ def train(config):
 
     # TRAIN SETUP ------------------------------------------------
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # device = 'cpu'  # For testing
+    # device = torch.device('cpu') # For testing
+
     txt_logger.info(colorstr("yellow", "bold", f"Device: {device}"))
     txt_logger.info(colorstr("green", "bold", f"Number of GPUs: {torch.cuda.device_count()}"))
     txt_logger.info(colorstr("yellow", "bold", f"Batch size: {config['batch_size']}"))
+    txt_logger.info(f"Data splitting CSV: {CSV_PATH}")
     txt_logger.info("Split set: {}".format(config['split']))
+
 
     # Model
     model = get_model(config['num_classes'], pretrained=True).to(device)
     print_model_info(txt_logger, model, INPUT_SIZE, device)
     
     # Optimiser
-    if config['optimiser']['type'] == 'adam':
-        optimizer = torch.optim.Adam(model.parameters(), lr=config['lr'])
-    else:
-        raise ValueError(f"Invalid optimiser: {config['optimiser']['type']}")
+    optimizer = get_optimiser(config, model, txt_logger)
 
     # Scheduler
-    # @TODO: Config scheduler
-    if config['lr_scheduler']['type'] == 'cosine_annealing':
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config['lr_scheduler']['T_max'])
-    elif config['lr_scheduler']['type'] == 'step':
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 
-                                            step_size=config['lr_scheduler']['step_size'], 
-                                            gamma=config['lr_scheduler']['gamma'])
-    else:
-        raise ValueError(f"Invalid learning rate scheduler type: {config['lr_scheduler']['type']}")
+    scheduler = get_scheduler(config, optimizer, txt_logger)
 
     # Loss function
-    if config['loss'] == 'cross_entropy':
-        criterion = torch.nn.CrossEntropyLoss()
-    else:
-        raise ValueError(f"Invalid loss function: {config['loss']}")
+    criterion = get_loss(config, txt_logger)
     
+    # Data loaders
     train_transforms, val_transforms = get_transforms(INPUT_SIZE)
     train_loader, val_loader = get_dataloaders(split_set=config['split'],
                                             batch_size=config['batch_size'],
@@ -75,7 +66,7 @@ def train(config):
     # Early stopping
     early_stopping = EarlyStopping(patience=5, delta=0.001)
 
-
+    # TRAINING LOOP ------------------------------------------------
     num_epochs = config['epochs']
     for epoch in range(num_epochs):
         txt_logger.info('------------------------------------------------------------') 
@@ -93,9 +84,9 @@ def train(config):
             # If you're using GPUs, setting pin_memory=True and using non_blocking=True when moving data to the device can improve data transfer efficiency
             data, target = data.to(device, non_blocking=True), target.to(device, non_blocking=True)
 
-
             optimizer.zero_grad()
             outputs = model(data)['out']
+
             loss = criterion(outputs, target)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)  # Gradient clipping
@@ -177,7 +168,12 @@ if __name__ == '__main__':
     txt_logger.info("\n" + colorstr("yellow", "bold", config['note']) + "\n")
     txt_logger.info(f"--------- [START] Training started at: {start_time} ---------\n")
 
-    train(config)
+    try:
+        train(config)
+    except Exception as e:
+        txt_logger.error(f"Training failed with error: {e}")
+        shutil.rmtree(save_dir, ignore_errors=True)
+        raise e
     
     end_time = datetime.now()
     txt_logger.info(f"--------- [COMPLETE] Training finished at: {end_time} ---------\n")

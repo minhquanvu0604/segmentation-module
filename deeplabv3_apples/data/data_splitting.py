@@ -1,3 +1,7 @@
+import os, sys
+top_level_package = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')) # segmentation-module
+sys.path.insert(0, top_level_package)
+
 import pandas as pd
 import os
 import random

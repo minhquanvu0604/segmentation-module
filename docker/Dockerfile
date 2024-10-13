@@ -26,7 +26,8 @@ RUN pip install --upgrade pip && \
     openpyxl \
     pyyaml \
     albumentations \
-    torchsummary
+    torchsummary \
+    segmentation-models-pytorch
 
 # Clean up unnecessary files to reduce image size
 RUN ldconfig && \

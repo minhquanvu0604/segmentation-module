@@ -2,9 +2,9 @@ import os
 import random
 import numpy as np
 import pandas as pd
+import re
 
 from PIL import Image
-
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
@@ -60,8 +60,17 @@ class AppleDataset(Dataset):
         image = Image.open(image_path).convert("RGB")
 
         # Load the corresponding label mask
-        label_name = image_name.replace('Image', 'Label') # Naming convention: Label_1.png
-        label_name = label_name.replace('.jpg', '.png')
+        # If the name has 'synthesied' in it (synthesised_8000_from_Image_1.jpg)
+        if 'synthesized' in image_name:
+            match = re.search(r'from_Image_(\d+)', image_name)
+            if match:
+                image_number = match.group(1)
+                # Format the label name
+                label_name = f"Label_{image_number}.png"
+        else:
+            label_name = image_name.replace('Image', 'Label') # Naming convention: Label_1.png
+            label_name = label_name.replace('.jpg', '.png')
+            
         label_path = os.path.join(self.labels_dir, label_name)
         label = np.array(Image.open(label_path))
         label = (label == APPLE_LABEL).astype(np.uint8) # Set apple pixels as 1, others as 0
@@ -87,13 +96,14 @@ def get_dataloaders(split_set, batch_size, num_workers=4, train_transforms=None,
         train_loader (DataLoader): DataLoader for the training dataset.
         val_loader (DataLoader): DataLoader for the validation dataset.
     """
-    print('Loading TRAINING data')
+    print('\nLoading TRAINING data')
     train_dataset = AppleDataset(split_set=split_set, split='train', transforms=train_transforms)
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
         num_workers=num_workers,
+        drop_last=True,
         pin_memory=True  # Speeds up data transfer to GPU
     )
     print("Loaded {} training images".format(len(train_dataset)))
@@ -105,6 +115,7 @@ def get_dataloaders(split_set, batch_size, num_workers=4, train_transforms=None,
         batch_size=batch_size,
         shuffle=False,  # No need to shuffle validation data
         num_workers=num_workers,
+        drop_last=True,
         pin_memory=True
     )
     print("Loaded {} validation images".format(len(val_dataset)))

@@ -12,10 +12,13 @@ LABEL_COLOR_LIST = [
     (0, 0, 0),    # Background
     (255, 0, 0)   # Apples
 ]
-with open(os.path.join(os.path.dirname(__file__), train_config), 'r') as file:
-    config = yaml.safe_load(file)
-DATASET_PATH = config['dataset_path']
 
+# DATASET_PATH = '/data/minhqvu/APPLE_DATA'
+# IMAGE_PATH = os.path.join(DATASET_PATH, 'synthesised_images')
+# LABELS_PATH = os.path.join(DATASET_PATH, 'labels-Fuji', 'PixelLabelData_18')
+# CSV_PATH = os.path.join(segmentation_module_path, 'data', 'dataset_splits_with_synth.csv')
+
+DATASET_PATH = '/root/APPLE_DATA'
 IMAGE_PATH = os.path.join(DATASET_PATH, 'images-Fuji')
 LABELS_PATH = os.path.join(DATASET_PATH, 'labels-Fuji', 'PixelLabelData_18')
 CSV_PATH = os.path.join(segmentation_module_path, 'data', 'dataset_splits.csv')
