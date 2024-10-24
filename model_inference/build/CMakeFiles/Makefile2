@@ -44,10 +44,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/quanvu/git/segmentation-module/model_inference
+CMAKE_SOURCE_DIR = /home/quanvu/ros/apple_ws/src/segmentation_module/model_inference
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/quanvu/git/segmentation-module/model_inference/build
+CMAKE_BINARY_DIR = /home/quanvu/ros/apple_ws/src/segmentation_module/model_inference/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -76,14 +76,14 @@ clean: CMakeFiles/model_inference.dir/clean
 CMakeFiles/predict_demo.dir/all: CMakeFiles/model_inference.dir/all
 	$(MAKE) -f CMakeFiles/predict_demo.dir/build.make CMakeFiles/predict_demo.dir/depend
 	$(MAKE) -f CMakeFiles/predict_demo.dir/build.make CMakeFiles/predict_demo.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles --progress-num=3,4 "Built target predict_demo"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/quanvu/ros/apple_ws/src/segmentation_module/model_inference/build/CMakeFiles --progress-num=3,4 "Built target predict_demo"
 .PHONY : CMakeFiles/predict_demo.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/predict_demo.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/ros/apple_ws/src/segmentation_module/model_inference/build/CMakeFiles 4
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/predict_demo.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/ros/apple_ws/src/segmentation_module/model_inference/build/CMakeFiles 0
 .PHONY : CMakeFiles/predict_demo.dir/rule
 
 # Convenience name for target.
@@ -103,14 +103,14 @@ CMakeFiles/predict_demo.dir/clean:
 CMakeFiles/model_inference.dir/all:
 	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/depend
 	$(MAKE) -f CMakeFiles/model_inference.dir/build.make CMakeFiles/model_inference.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles --progress-num=1,2 "Built target model_inference"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/quanvu/ros/apple_ws/src/segmentation_module/model_inference/build/CMakeFiles --progress-num=1,2 "Built target model_inference"
 .PHONY : CMakeFiles/model_inference.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/model_inference.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/ros/apple_ws/src/segmentation_module/model_inference/build/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/model_inference.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/git/segmentation-module/model_inference/build/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/quanvu/ros/apple_ws/src/segmentation_module/model_inference/build/CMakeFiles 0
 .PHONY : CMakeFiles/model_inference.dir/rule
 
 # Convenience name for target.
