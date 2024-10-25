@@ -16,7 +16,7 @@ def export_model(model_path, num_classes, output_path):
 if __name__ == '__main__':
 
     # model_path = '/root/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pth'
-    model_path = '/home/quanvu/ros/apple_ws/src/segmentation_module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pth'
+    model_path = '/home/quanvu/git/segmentation-module/deeplabv3_apples/output/2024_10_11_18_57_32/best_model.pth'
     output_path = model_path.replace('.pth', '.pt')
     num_classes = 2
 

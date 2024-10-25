@@ -155,10 +155,10 @@ def validate(model, val_loader, device, criterion, epoch, save_dir, metric_track
         loss = criterion(outputs, target)
 
         # Calculate metrics
-        metrics = metric_tracker.calculate_metrics(outputs, target, loss.item())
-        metric_tracker.update(metrics, phase='val')  # Update the validation metrics
+        metric_tracker.update(outputs, target, loss, phase='val')  # Update the validation metrics
 
-        prog_bar.set_description(desc=f"Loss: {loss.item():.4f} | PixAcc: {metrics['pix_acc']:.2f}% | IoU: {metrics['iou']:.2f}%")
+        # prog_bar.set_description(desc=f"Loss: {loss.item():.4f} | PixAcc: {metrics['pix_acc']:.2f}% | IoU: {metrics['iou']:.2f}%")
+        prog_bar.set_description(desc=f"Loss: {loss.item():.4f}")
 
     # Return average metrics for validation
     avg_val_metrics = metric_tracker.compute_epoch_average_metrics(phase='val')

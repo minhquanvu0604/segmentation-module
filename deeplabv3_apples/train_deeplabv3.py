@@ -100,7 +100,6 @@ def train(config):
             # metrics['loss'] = loss.item()
             metric_tracker.update(outputs, target, loss, phase='train')
 
-
         # Average metrics over the training dataset
         avg_train_metrics = metric_tracker.compute_epoch_average_metrics(phase='train')
         txt_logger.info(f"Train Loss: {avg_train_metrics['loss']:.4f} | Train PixAcc: {avg_train_metrics['pix_acc']:.2f}% | Train IoU: {avg_train_metrics['iou']:.2f}%")

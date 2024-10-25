@@ -1,17 +1,28 @@
 #include "pointcloud_filter_node/pointcloud_filter_core.hpp"
 
+#include <yaml-cpp/yaml.h>
+#include <ros/package.h> 
+
 int main(int argc, char** argv) {
+
     ros::init(argc, argv, "pointcloud_filter_node");
     ros::NodeHandle nh;
     ros::NodeHandle private_nh("~");
 
-    std::string model_path = "/home/quanvu/ros/apple_ws/src/segmentation_module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pt";
-    cv::Size input_size(800, 800);  // Model input size
+    // Load the YAML file parameters into the parameter server
+    std::string package_path = ros::package::getPath("pointcloud_filter_node");
+    std::string yaml_file = package_path + "/config/pointcloud_filter_node.yaml";
 
-    // Create the PointCloudFilterCore object
+    // Load the YAML file
+    YAML::Node config = YAML::LoadFile(yaml_file);
+    std::string model_path = config["model_path"].as<std::string>();
+    int input_width = config["input_size"]["width"].as<int>();
+    int input_height = config["input_size"]["height"].as<int>();
+
+    cv::Size input_size(input_width, input_height);
+
     PointCloudFilterCore filter_core(nh, private_nh, model_path, input_size);
 
-    // Keep the node running
     ros::spin();
 
     return 0;
