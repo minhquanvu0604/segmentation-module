@@ -84,7 +84,9 @@ def pix_acc(target, output):
         tuple: (total labeled pixels, correctly predicted pixels)
     """
     with torch.no_grad():
-        preds = torch.argmax(output, dim=1)  # Predicted class per pixel
+        # Extract the class with the highest probability for each pixel -> tensor of shape (B, H, W)
+        preds = torch.argmax(output, dim=1) 
+        
         correct = (preds == target).sum()  # Correctly classified pixels
         labeled = (target != 255).sum()  # Assuming 255 represents unlabeled pixels
     

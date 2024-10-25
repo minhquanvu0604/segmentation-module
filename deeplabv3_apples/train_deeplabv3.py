@@ -103,7 +103,7 @@ def train(config):
         train_epoch_pixacc = 100 * running_correct / (np.spacing(1) + running_labeled)
 
         train_loss.append(train_epoch_loss)
-        train_pix_acc.append(train_epoch_pixacc.cpu())
+        train_pix_acc.append(train_epoch_pixacc.cpu()) # @TODO WHy cpu()?
 
         txt_logger.info(f"Train Loss: {train_epoch_loss:.4f} | Train PixAcc: {train_epoch_pixacc:.2f}%")
         txt_logger.info('------------------------------------------------------------')
