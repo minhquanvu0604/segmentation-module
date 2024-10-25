@@ -7,7 +7,10 @@ Unzip and put the library inside `/opt` (should have path /opt/libtorch/share/cm
 export CMAKE_PREFIX_PATH=/opt/libtorch:$CMAKE_PREFIX_PATH
 ```
  
-# Infer the model in Cpp 
+# Inference on Images
+Use predict.py
+
+# Inference Node in Cpp 
 Inference in C++ so it can be integrated with MVPS nodelet system.
 
 After training, model.pth is obtained, which needs to be converted to model.pt using `export.py`.
@@ -45,8 +48,8 @@ export CMAKE_PREFIX_PATH=/absolute/path/to/segmentation-model/install:$CMAKE_PRE
 Specifies additional paths to search for packages when using find_package() 
 (if your library is installed in a directory that's not in CMake's default search paths (like /usr/local), you need to tell CMake where to find it)
 
-# Infer the model in Python - Skipped
-For fast prototyping
+# Inference Node in Python 
+For fast prototyping - [Skipped]
 
 # Test suite
 Implement this tutorial: https://pytorch.org/tutorials/advanced/cpp_export.html

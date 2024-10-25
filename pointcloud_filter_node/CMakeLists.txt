@@ -18,6 +18,8 @@ find_package(OpenCV REQUIRED)
 # find_package(Torch REQUIRED)
 find_package(PCL REQUIRED)
 find_package(model_inference REQUIRED)
+find_package(yaml-cpp REQUIRED)
+
 
 # Check the variables - OK
 # message(STATUS "====== model_inference_INCLUDE_DIRS: ${model_inference_INCLUDE_DIRS} ======")
@@ -67,6 +69,7 @@ target_link_libraries(${PROJECT_NAME}
   ${OpenCV_LIBRARIES}
   # ${TORCH_LIBRARIES}
   ${model_inference_LIBRARIES}
+  yaml-cpp
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

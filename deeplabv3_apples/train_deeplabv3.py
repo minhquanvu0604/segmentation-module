@@ -16,7 +16,7 @@ from deeplabv3_apples.model import get_model, print_model_info
 from deeplabv3_apples.engine import get_optimiser, get_scheduler, get_loss
 from deeplabv3_apples.data.dataloader import get_transforms, get_dataloaders
 from deeplabv3_apples.utils import SaveBestModel, EarlyStopping, save_model, colorstr
-from deeplabv3_apples.validate import validate, pix_acc, save_plots
+from deeplabv3_apples.validate import MetricTracker, validate
 
 
 def train(config):
@@ -60,15 +60,17 @@ def train(config):
     # Track best validation performance
     save_best_model = SaveBestModel()
 
-    train_loss, train_pix_acc = [], []
-    val_loss, val_pix_acc = [], []
-
     # Early stopping
     early_stopping = EarlyStopping(patience=5, delta=0.001)
 
+    # Training metrics
+    metric_tracker = MetricTracker(metrics=['loss', 'pix_acc', 'iou', 'precision', 'recall', 'f1_score'], 
+                                   save_dir=config['save_dir'])
+    
     # TRAINING LOOP ------------------------------------------------
     num_epochs = config['epochs']
     for epoch in range(num_epochs):
+
         txt_logger.info('------------------------------------------------------------') 
         txt_logger.info(f"EPOCH: {epoch + 1}/{num_epochs}")
         current_lr = scheduler.get_last_lr()[0]
@@ -76,9 +78,10 @@ def train(config):
         txt_logger.info('----')
 
         # TRAINING PHASE ------------------------------------------------
+        metric_tracker.reset()
+               
         model.train()
-        running_loss = 0.0
-        running_correct, running_labeled = 0, 0
+        running_loss = running_pix_acc = running_iou = running_precision = running_recall = running_f1 = 0.0
         
         for data, target in tqdm(train_loader, desc='Training'):
             # If you're using GPUs, setting pin_memory=True and using non_blocking=True when moving data to the device can improve data transfer efficiency
@@ -92,38 +95,24 @@ def train(config):
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)  # Gradient clipping
             optimizer.step()
             
-            running_loss += loss.item()
+            # Calculate metrics
+            # metrics = MetricTracker.calculate_metrics(target, outputs)
+            # metrics['loss'] = loss.item()
+            metric_tracker.update(outputs, target, loss, phase='train')
 
-            # Calculate pixel accuracy
-            labeled, correct = pix_acc(target, outputs)
-            running_labeled += labeled.sum()
-            running_correct += correct
-
-        train_epoch_loss = running_loss / len(train_loader)
-        train_epoch_pixacc = 100 * running_correct / (np.spacing(1) + running_labeled)
-
-        train_loss.append(train_epoch_loss)
-        train_pix_acc.append(train_epoch_pixacc.cpu()) # @TODO WHy cpu()?
-
-        txt_logger.info(f"Train Loss: {train_epoch_loss:.4f} | Train PixAcc: {train_epoch_pixacc:.2f}%")
+        # Average metrics over the training dataset
+        avg_train_metrics = metric_tracker.compute_epoch_average_metrics(phase='train')
+        txt_logger.info(f"Train Loss: {avg_train_metrics['loss']:.4f} | Train PixAcc: {avg_train_metrics['pix_acc']:.2f}% | Train IoU: {avg_train_metrics['iou']:.2f}%")
         txt_logger.info('------------------------------------------------------------')
 
         # VALIDATION PHASE ------------------------------------------------
-        val_epoch_loss, val_epoch_pixacc = validate(model, 
-                                                    val_loader, 
-                                                    device, 
-                                                    criterion, 
-                                                    epoch, 
-                                                    valid_pred_dir)
-        
-        val_loss.append(val_epoch_loss)
-        val_pix_acc.append(val_epoch_pixacc.cpu())
-        txt_logger.info(f"Validation Loss: {val_epoch_loss:.4f} | Validation PixAcc: {val_epoch_pixacc:.2f}%")
+        avg_val_metrics = validate(model, val_loader, device, criterion, epoch, save_dir, metric_tracker)
+        txt_logger.info(f"Validation Loss: {avg_val_metrics['loss']:.4f} | Validation PixAcc: {avg_val_metrics['pix_acc']:.2f}% | Validation IoU: {avg_val_metrics['iou']:.2f}%")
         
         # Save the best model based on validation loss
-        save_best_model(val_epoch_loss, epoch, model, save_dir)
+        save_best_model(avg_val_metrics['loss'], epoch, model, save_dir)
 
-        if early_stopping(val_epoch_loss):
+        if early_stopping(avg_val_metrics['loss']):
             txt_logger.info("Early stopping triggered")
             break
 
@@ -133,12 +122,15 @@ def train(config):
     # Save the final model, optimizer, and loss
     save_model(num_epochs, model, optimizer, criterion, save_dir)
 
-    # Save plots for loss and accuracy
-    save_plots(train_pix_acc, val_pix_acc, train_loss, val_loss, save_dir)
+    # Save plots
+    metric_tracker.save_plots()
+
+
 
 
 if __name__ == '__main__':
 
+    # -------------- SETUP ----------------
     # System check 
     if not os.path.exists(DATASET_PATH):
         raise FileNotFoundError(f"Dataset not found at: {DATASET_PATH}")
@@ -164,7 +156,7 @@ if __name__ == '__main__':
     txt_logger.info(f"Save directory: {save_dir}")
 
 
-    # ------- START TRAINING ---------
+    # -------------- START TRAINING ----------------
     txt_logger.info("\n" + colorstr("yellow", "bold", config['note']) + "\n")
     txt_logger.info(f"--------- [START] Training started at: {start_time} ---------\n")
 

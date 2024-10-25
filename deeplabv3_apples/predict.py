@@ -218,10 +218,11 @@ if __name__ == "__main__":
     # image_folder = '/home/quanvu/uts/APPLE_DATA/few_test_images'
 
     # ----- Load from script -----
-    split = ['Image_8.jpg']
-    model_path = '/home/quanvu/git/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pt'
-    image_folder = '/home/quanvu/uts/APPLE_DATA/few_test_images'
+    # split = ['Image_8.jpg','ext_1.jpg']
+    split = ['sim_1.jpeg', 'sim_2.png', 'sim_3.png']
 
+    model_path = '/home/quanvu/git/segmentation-module/deeplabv3_apples/output/2024_10_02_23_37_35/model.pt'
+    image_folder = '/media/quanvu/T7 Shield/6_UBUNTU_20/uts/APPLE_DATA/few_test_images'
 
 
     # -----Common config -----

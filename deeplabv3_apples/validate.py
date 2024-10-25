@@ -7,9 +7,107 @@ import torch
 
 from deeplabv3_apples.config.config import LABEL_COLOR_LIST
 
+class MetricTracker:
+    def __init__(self, save_dir, metrics=None):
+        """
+        Initializes the MetricTracker.
+
+        Parameters:
+            metrics (list): List of metric names to track (e.g., ['loss', 'pix_acc', 'iou', 'precision', 'recall', 'f1_score']).
+            save_dir (str): Directory to save plots.
+        """
+
+        if metrics is None:
+            metrics = ['loss', 'pix_acc', 'iou', 'precision', 'recall', 'f1_score']  # Default metrics
+
+        self.metrics = {metric: {'train': [], 'val': []} for metric in metrics}
+        self.save_dir = save_dir
+        os.makedirs(save_dir, exist_ok=True)
+
+    def update(self, pred, target, loss, phase='train'):
+        """
+        Calculates and updates IoU, Precision, Recall, F1 score, Pixel Accuracy, and Average Loss.
+
+        Parameters:
+            pred (torch.Tensor): Predicted segmentation mask (binary or multiclass).
+            target (torch.Tensor): Ground truth segmentation mask (binary or multiclass).
+            loss (float): The current loss for the batch.
+            phase (str): Phase of the process, either 'train' or 'val' (validation).
+        """
+        eps = np.spacing(1)  # Small epsilon to avoid division by zero
+        pred = pred.int()  # Ensure binary integer predictions
+        target = target.int()
+
+        # True Positives (TP), False Positives (FP), and False Negatives (FN)
+        TP = torch.sum((pred == 1) & (target == 1))
+        FP = torch.sum((pred == 1) & (target == 0))
+        FN = torch.sum((pred == 0) & (target == 1))
+
+        # Calculate IoU
+        intersection = TP
+        union = torch.sum((pred == 1) | (target == 1))
+        iou = (intersection + eps) / (union + eps)
+
+        # Calculate Precision and Recall
+        precision = (TP + eps) / (TP + FP + eps)
+        recall = (TP + eps) / (TP + FN + eps)
+
+        # Calculate F1 Score
+        f1_score = 2 * (precision * recall) / (precision + recall + eps)
+
+        # Pixel accuracy calculation
+        correct = (pred == target).sum()  # Correctly classified pixels
+        labeled = (target != 255).sum()  # Assuming 255 represents unlabeled pixels
+        pix_acc = 100 * correct / (eps + labeled)
+
+        # Update metrics for the specified phase (train or validation)
+        metrics_dict = {
+            "iou": iou.item(),
+            "precision": precision.item(),
+            "recall": recall.item(),
+            "f1_score": f1_score.item(),
+            "pix_acc": pix_acc.item(),
+            "loss": loss.item()
+        }
+
+        for metric, value in metrics_dict.items():
+            if metric in self.metrics:
+                self.metrics[metric][phase].append(value)
+
+    def reset(self):
+        """
+        Resets all tracked metrics.
+        """
+        for metric in self.metrics:
+            self.metrics[metric] = {'train': [], 'val': []}
+
+    def compute_epoch_average_metrics(self, phase):
+        if phase not in ['train', 'val']:
+            raise ValueError("Phase must be either 'train' or 'val'.")
+        return {metric: np.mean(values[phase]) for metric, values in self.metrics.items()}
+
+    def save_plots(self):
+        """
+        Saves plots for each metric.
+
+        Parameters:
+            save_dir (str): Directory to save the plots.
+        """
+        os.makedirs(self.save_dir, exist_ok=True)
+
+        for metric in self.metrics.keys():
+            plt.figure(figsize=(10, 5))
+            plt.plot(self.metrics[metric], label=f'Train {metric.capitalize()}')
+            plt.title(f'{metric.capitalize()} per Epoch')
+            plt.xlabel('Epochs')
+            plt.ylabel(f'{metric.capitalize()}')
+            plt.legend()
+            plt.savefig(os.path.join(self.save_dir, f'{metric}_plot.png'))
+            plt.close()
+        print(f"Plots saved to {self.save_dir}")
 
 @torch.no_grad()
-def validate(model, val_loader, device, criterion, epoch, save_dir):
+def validate(model, val_loader, device, criterion, epoch, save_dir, metric_tracker):
     """
     Validate the model.
 
@@ -20,22 +118,22 @@ def validate(model, val_loader, device, criterion, epoch, save_dir):
         criterion (torch.nn.Module): Loss function used.
         epoch (int): The current epoch number.
         save_dir (str): Directory to save validation results.
+        metric_tracker (MetricTracker): Instance of MetricTracker to record validation metrics.
 
     Returns:
-        tuple: (validation loss, pixel accuracy)
+        dict: A dictionary with average validation metrics.
     """
+
     print('Validating...')
     model.eval()
-    running_loss = 0.0
-    running_correct, running_label = 0, 0
 
     num_batches = len(val_loader)
 
     # Create a progress bar
     prog_bar = tqdm(val_loader, total=num_batches, desc='Validating', bar_format='{l_bar}{bar:20}{r_bar}{bar:-20b}')
     
-    for i, (data, target) in enumerate(prog_bar):    
-        labeled = (target != 255).sum() # Count the labeled pixels (excluding 255)
+    for i, (data, target) in enumerate(prog_bar):
+        labeled = (target != 255).sum()  # Count the labeled pixels (excluding 255)
         if labeled == 0:  # Check if there are no labeled pixels
             raise ValueError("No labeled pixels in the validation batch. Check the labels.")
 
@@ -55,42 +153,35 @@ def validate(model, val_loader, device, criterion, epoch, save_dir):
 
         # Calculate loss
         loss = criterion(outputs, target)
-        running_loss += loss.item()
 
-        # Calculate pixel accuracy
-        labeled, correct = pix_acc(target, outputs)
-        running_label += labeled.sum()
-        running_correct += correct
+        # Calculate metrics
+        metric_tracker.update(outputs, target, loss, phase='val')  # Update the validation metrics
 
-        # Update the progress bar with current loss and pixel accuracy
-        valid_running_pixacc = 1.0 * correct / (np.spacing(1) + labeled.sum())
-        prog_bar.set_description(desc=f"Loss: {loss.item():.4f} | PixAcc: {valid_running_pixacc.cpu().numpy()*100:.2f}%")
-        
-    # Calculate average loss and accuracy for the epoch
-    valid_loss = running_loss / num_batches
-    pixel_acc = ((1.0 * running_correct) / (np.spacing(1) + running_label)) * 100.
+        # prog_bar.set_description(desc=f"Loss: {loss.item():.4f} | PixAcc: {metrics['pix_acc']:.2f}% | IoU: {metrics['iou']:.2f}%")
+        prog_bar.set_description(desc=f"Loss: {loss.item():.4f}")
 
-    return valid_loss, pixel_acc
+    # Return average metrics for validation
+    avg_val_metrics = metric_tracker.compute_epoch_average_metrics(phase='val')
+    return avg_val_metrics
 
-def pix_acc(target, output):
-    """
-    Compute pixel accuracy.
 
-    Parameters:
-        target (torch.Tensor): Ground truth masks.
-        output (torch.Tensor): Model's predicted masks.
+# def pix_acc(target, output):
+#     """
+#     Compute pixel accuracy.
 
-    Returns:
-        tuple: (total labeled pixels, correctly predicted pixels)
-    """
-    with torch.no_grad():
-        # Extract the class with the highest probability for each pixel -> tensor of shape (B, H, W)
-        preds = torch.argmax(output, dim=1) 
-        
-        correct = (preds == target).sum()  # Correctly classified pixels
-        labeled = (target != 255).sum()  # Assuming 255 represents unlabeled pixels
+#     Parameters:
+#         target (torch.Tensor): Ground truth masks.
+#         output (torch.Tensor): Model's predicted masks.
+
+#     Returns:
+#         tuple: (total labeled pixels, correctly predicted pixels)
+#     """
+#     with torch.no_grad():
+#         preds = torch.argmax(output, dim=1)  # Predicted class per pixel
+#         correct = (preds == target).sum()  # Correctly classified pixels
+#         labeled = (target != 255).sum()  # Assuming 255 represents unlabeled pixels
     
-    return labeled, correct
+#     return labeled, correct
 
 def draw_translucent_seg_maps(images, outputs, epoch, batch_idx, save_dir, alpha=0.6):
     """
@@ -132,37 +223,3 @@ def draw_translucent_seg_maps(images, outputs, epoch, batch_idx, save_dir, alpha
         save_path = os.path.join(save_dir, f"epoch_{epoch}_batch_{batch_idx}_sample_{idx}.png")
         plt.imsave(save_path, blended)
         print(f"Saved: {save_path}")
-
-def save_plots(train_pix_acc, val_pix_acc, train_loss, val_loss, save_dir):
-    """
-    Function to save plots of training and validation accuracy and loss.
-
-    Parameters:
-        train_pix_acc (list): List of training pixel accuracies for each epoch.
-        val_pix_acc (list): List of validation pixel accuracies for each epoch.
-        train_loss (list): List of training losses for each epoch.
-        val_loss (list): List of validation losses for each epoch.
-        save_dir (str): The directory to save the plots.
-    """
-    # Plot loss
-    plt.figure(figsize=(10, 5))
-    plt.plot(train_loss, label='Train Loss')
-    plt.plot(val_loss, label='Validation Loss')
-    plt.title('Loss per Epoch')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.savefig(os.path.join(save_dir, 'loss_plot.png'))
-    plt.close()
-
-    # Plot pixel accuracy
-    plt.figure(figsize=(10, 5))
-    plt.plot(train_pix_acc, label='Train Pixel Accuracy')
-    plt.plot(val_pix_acc, label='Validation Pixel Accuracy')
-    plt.title('Pixel Accuracy per Epoch')
-    plt.xlabel('Epochs')
-    plt.ylabel('Pixel Accuracy (%)')
-    plt.legend()
-    plt.savefig(os.path.join(save_dir, 'pixel_accuracy_plot.png'))
-    plt.close()
-    print(f"Plots saved to {save_dir}")
