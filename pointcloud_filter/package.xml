@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>pointcloud_filter_node</name>
+  <name>pointcloud_filter</name>
   <version>0.0.0</version>
   <description>ROS wrapper for model_inference</description>
   <maintainer email="quanvu0604@gmail.com">quanvu</maintainer>
@@ -47,6 +47,9 @@
   <build_depend>pcl_ros</build_depend>
   <build_depend>pcl_conversions</build_depend>
   <build_depend>model_inference</build_depend>
+  <build_depend>hydra_utils</build_depend>
+  <build_depend>nodelet</build_depend>
+  <build_depend>pluginlib</build_depend>
 
   <!-- Use build_export_depend for packages you need in order to build against this package: -->
   <build_export_depend>model_inference</build_export_depend>
@@ -63,8 +66,13 @@
   <exec_depend>model_inference</exec_depend>
   <exec_depend>OpenCV</exec_depend>
   <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>hydra_utils</exec_depend>
+  <exec_depend>nodelet</exec_depend>
+  <exec_depend>pluginlib</exec_depend>  
 
   <export>
     <build_type>cmake</build_type>
+    <nodelet plugin="${prefix}/nodelet_plugins.xml" />
   </export>
+
 </package>

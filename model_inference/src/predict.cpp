@@ -15,6 +15,7 @@ public:
         try {
             model_ = torch::jit::load(model_path);
 
+            // TODO Check the problem with using CPU for model inference
             // Move the model to GPU if available
             if (torch::cuda::is_available()) {
                 model_.to(torch::kCUDA);
@@ -23,6 +24,9 @@ public:
                 model_.to(torch::kCPU);
                 std::cout << "CUDA is not available. Moving model to CPU." << std::endl;
             }
+            // model_.to(torch::kCPU);
+
+
         } catch (const c10::Error& e) {
             std::cerr << "Error loading the model from " << model_path << std::endl;
             throw;
@@ -33,6 +37,10 @@ public:
 
     // Function to infer a single image
     cv::Mat infer_single_image(const cv::Mat& image) {
+
+        // std::cout << "[DEBUG MODE] INFERING A HARD CODED IMAGE" << std::endl;
+        // cv::Mat image = cv::imread("/home/quanvu/Desktop/apple_gazebo/apples_gazebo.png");
+
         if (image.empty()) {
             std::cerr << "Error: Provided image is empty!" << std::endl;
             return cv::Mat();
@@ -79,6 +87,7 @@ public:
             image_tensor = image_tensor.to(torch::kCUDA);
         else
             image_tensor = image_tensor.to(torch::kCPU);
+        // image_tensor = image_tensor.to(torch::kCPU);
 
         // Inference
         torch::NoGradGuard no_grad;  // Disable gradient computation
@@ -108,9 +117,16 @@ public:
         resized_prob = resized_prob.squeeze().cpu();  // Remove batch and channel dimensions
 
         // Create cv::Mat with float data from the tensor
+        // It’s possible that cv::Mat is behaving unexpectedly in your case because the OpenCV matrix 
+        // probability_map directly wraps the underlying Torch tensor data with shared memory
+        // When using cv::Mat as a wrapper around a Torch tensor, any changes made to the Torch tensor can 
+        // reflect in cv::Mat because they both reference the same memory. 
+        // This means that if infer() modifies or reuses the tensor resized_prob after wrapping it in cv::Mat, 
+        // the values in probability_map will also change.
         cv::Mat probability_map(original_size, CV_32F, resized_prob.data_ptr<float>());
 
-        return probability_map;
+        // return probability_map; // Return the cv::Mat directly - above problem
+        return probability_map.clone();  // Return a deep copy of the cv::Mat
     }
 
 private:
