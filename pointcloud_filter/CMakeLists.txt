@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(pointcloud_filter_node)
+project(pointcloud_filter)
 
 ## Compile as C++14, supported in ROS Noetic
 # add_compile_options(-std=c++14)
 # add_compile_options(-std=c++17)
-
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -12,13 +11,19 @@ find_package(catkin REQUIRED COMPONENTS
   pcl_ros
   pcl_conversions
   cv_bridge
+  nodelet
+  pluginlib
 )
 
-find_package(OpenCV REQUIRED)
-# find_package(Torch REQUIRED)
+# find_package(OpenCV REQUIRED)
+find_package(OpenCV 4 REQUIRED) 
 find_package(PCL REQUIRED)
 find_package(model_inference REQUIRED)
 find_package(yaml-cpp REQUIRED)
+
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 # Check the variables - OK
@@ -32,7 +37,7 @@ find_package(yaml-cpp REQUIRED)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp sensor_msgs pcl_ros pcl_conversions cv_bridge
+  CATKIN_DEPENDS roscpp sensor_msgs pcl_ros pcl_conversions cv_bridge nodelet pluginlib
   DEPENDS OpenCV PCL
 )
 
@@ -46,10 +51,9 @@ catkin_package(
 
 include_directories(
   include
-  include/pointcloud_filter_node
+  include/pointcloud_filter
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
-  # ${TORCH_INCLUDE_DIRS}
   ${model_inference_INCLUDE_DIRS}
 )
 
@@ -59,33 +63,49 @@ include_directories(
 # # Optional: Keep if PCL requires specific definitions
 # add_definitions(${PCL_DEFINITIONS})
 
-add_executable(${PROJECT_NAME} 
+# Pointcloud Filter node
+add_executable(${PROJECT_NAME}_node 
   src/pointcloud_filter_main.cpp
   src/pointcloud_filter_core.cpp
 )
-
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
-  ${OpenCV_LIBRARIES}
-  # ${TORCH_LIBRARIES}
+  # ${OpenCV_LIBRARIES}
   ${model_inference_LIBRARIES}
   yaml-cpp
+  ${OpenCV_LIBS} opencv_imgcodecs opencv_highgui
 )
-
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(${PROJECT_NAME}_node PROPERTIES
   CXX_STANDARD 17
   CXX_STANDARD_REQUIRED YES
 )
+set_property(TARGET ${PROJECT_NAME}_node PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET ${PROJECT_NAME}_node PROPERTY CXX_STANDARD 17)
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-# if (TORCH_CUDA_ARCH_LIST)
-#   target_link_libraries(${PROJECT_NAME} ${TORCH_CUDA_LIBRARIES})
-# endif()
 
-install(TARGETS ${PROJECT_NAME} 
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# Pointcloud Filter nodelet
+add_library(${PROJECT_NAME}_nodelet
+  src/pointcloud_filter_core.cpp
+)
+target_link_libraries(${PROJECT_NAME}_nodelet 
+  ${catkin_LIBRARIES}
+  ${model_inference_LIBRARIES}
+  yaml-cpp
+  ${OpenCV_LIBS} opencv_imgcodecs opencv_highgui
 )
 
+
+# Installing both node and nodelet
+install(TARGETS ${PROJECT_NAME}_node 
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+install(TARGETS ${PROJECT_NAME}_nodelet
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+install(FILES nodelet_plugins.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+# message(STATUS "====== CATKIN_PACKAGE_SHARE_DESTINATION: ${CATKIN_PACKAGE_SHARE_DESTINATION} ======")
 message(STATUS "====== TORCH_INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS} ======")
 message(STATUS "====== TORCH_LIBRARIES: ${TORCH_LIBRARIES} ======")

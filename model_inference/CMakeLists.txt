@@ -15,7 +15,7 @@ set(CMAKE_INSTALL_PREFIX /home/quanvu/ros/apple_ws/devel)
 set(PROJECT_VERSION 1.0.0)
 
 find_package(Torch REQUIRED)
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 4 REQUIRED)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -23,7 +23,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Path to LibTorch
 # .bashrc
-
 if(NOT CMAKE_PREFIX_PATH) 
     set(CMAKE_PREFIX_PATH $ENV{CMAKE_PREFIX_PATH})
 endif()
@@ -87,7 +86,7 @@ install(DIRECTORY include/ DESTINATION include)
 add_executable(predict_demo src/predict_demo.cpp)
 
 # Link the executable with the inference library and other dependencies
-target_link_libraries(predict_demo ${PROJECT_NAME} ${OpenCV_LIBS} "${TORCH_LIBRARIES}" opencv_imgcodecs opencv_highgui)
+target_link_libraries(predict_demo ${PROJECT_NAME} ${OpenCV_LIBS} opencv_imgcodecs opencv_highgui)
 
 # Set properties for the executable
 set_property(TARGET predict_demo PROPERTY CXX_STANDARD 17)

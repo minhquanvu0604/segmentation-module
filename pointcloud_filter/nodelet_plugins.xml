@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<library path="lib/libpointcloud_filter_nodelet">
+  <class  name="segmentation_module/pointcloud_filter" 
+          type="segmentation_module::PointCloudFilterCore" 
+          base_class_type="nodelet::Nodelet">
+    <description>
+      Nodelet for filtering the pointcloud based on the deep learning detection mask.
+    </description>
+  </class>
+</library>

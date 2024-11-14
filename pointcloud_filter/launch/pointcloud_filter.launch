@@ -1,6 +1,6 @@
 <launch>
-    <!-- Start the pointcloud_filter_node with topic remappings -->
-    <node name="pointcloud_filter_node" pkg="pointcloud_filter_node" type="pointcloud_filter_node" output="screen">
+    <!-- Start the Pointcloud Filter node with topic remappings -->
+    <node name="pointcloud_filter_node" pkg="pointcloud_filter" type="pointcloud_filter_node" output="screen">
         
         <!-- Remap subscribed topics -->
         <remap from="/camera/color/image_raw" to="/arm_module_camera/color/image_raw"/>
