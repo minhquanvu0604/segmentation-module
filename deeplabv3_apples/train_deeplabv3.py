@@ -3,7 +3,6 @@ top_level_package = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'
 sys.path.insert(0, top_level_package)
 
 from datetime import datetime
-import shutil
 from tqdm import tqdm
 import yaml
 
@@ -164,7 +163,6 @@ if __name__ == '__main__':
         train(config)
     except Exception as e:
         txt_logger.error(f"Training failed with error: {e}")
-        shutil.rmtree(save_dir, ignore_errors=True)
         raise e
     
     end_time = datetime.now()
