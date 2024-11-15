@@ -88,23 +88,27 @@ class MetricTracker:
 
     def save_plots(self):
         """
-        Saves plots for each metric.
-
-        Parameters:
-            save_dir (str): Directory to save the plots.
+        Saves plots for each metric after every epoch, overwriting the previous plots.
         """
-        os.makedirs(self.save_dir, exist_ok=True)
-
-        for metric in self.metrics.keys():
+        for metric, values in self.metrics.items():
             plt.figure(figsize=(10, 5))
-            plt.plot(self.metrics[metric], label=f'Train {metric.capitalize()}')
+
+            # Plot train and val metrics for each metric
+            if 'train' in values and values['train']:
+                plt.plot(values['train'], label=f'Train {metric.capitalize()}')
+            if 'val' in values and values['val']:
+                plt.plot(values['val'], label=f'Validation {metric.capitalize()}')
+
             plt.title(f'{metric.capitalize()} per Epoch')
             plt.xlabel('Epochs')
             plt.ylabel(f'{metric.capitalize()}')
             plt.legend()
-            plt.savefig(os.path.join(self.save_dir, f'{metric}_plot.png'))
+
+            # Save and overwrite the plot in each epoch
+            plot_path = os.path.join(self.save_dir, f'{metric}_plot.png')
+            plt.savefig(plot_path)
             plt.close()
-        print(f"Plots saved to {self.save_dir}")
+        print(f"Updated plots saved to {self.save_dir}")
 
 @torch.no_grad()
 def validate(model, val_loader, device, criterion, epoch, save_dir, metric_tracker):
@@ -144,12 +148,7 @@ def validate(model, val_loader, device, criterion, epoch, save_dir, metric_track
 
         # Save the segmentation maps at the last batch
         if i == num_batches - 1:
-            draw_translucent_seg_maps(
-                data, 
-                outputs, 
-                epoch, 
-                i, 
-                save_dir)
+            draw_translucent_seg_maps(data, outputs, epoch, i, save_dir)
 
         # Calculate loss
         loss = criterion(outputs, target)
