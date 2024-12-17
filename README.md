@@ -1,5 +1,14 @@
-# segmentation-module
-Apple Picking Project - Segmentation module to filter relevant pointcloud for reconstruction
+# Segmentation Module
+A module of my capstone - Automation in Apple Picking
+
+Segmentation module to filter relevant pointcloud for reconstruction. Enhance the MVPS Segmentation Module by incorporating deep learning techniques for ROI detection, improving the accuracy
+and efficiency of apple segmentation.
+
+<p align="center">
+  <img width="25%" alt="Before Filter" src="wiki\image\2024-11-01_15-44.png">
+  <img width="25%" alt="After Filter" src="wiki\image\2024-11-01_15-45.png">
+</p>
+
 
 # Installing LibTorch
 Unzip and put the library inside `/opt` (should have path /opt/libtorch/share/cmake/Torch/TorchConfig.cmake)
