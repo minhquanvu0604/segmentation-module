@@ -1,12 +1,21 @@
 # Segmentation Module
-A module of my capstone - Automation in Apple Picking
+**A module of my capstone - Automation in Apple Picking**
 
 Segmentation module to filter relevant pointcloud for reconstruction. Enhance the MVPS Segmentation Module by incorporating deep learning techniques for ROI detection, improving the accuracy
 and efficiency of apple segmentation.
 
+As we aimed to integrate the model into the nodelet system, an inference loop in C++ programming language is desired. LibTorch is selected as the C++ implementation for model inference - [set up guide](README.md#installing-libtorch).
+
+
+Before and After Filtering:
 <p align="center">
-  <img width="25%" alt="Before Filter" src="wiki\image\2024-11-01_15-44.png">
-  <img width="25%" alt="After Filter" src="wiki\image\2024-11-01_15-45.png">
+  <img height="400" alt="Before Filter" src="wiki\image\2024-11-01_15-44.png">
+  <img height="400" alt="After Filter" src="wiki\image\2024-11-01_15-45.png">
+</p>
+
+# DeepLabV3 Instance Segmentation
+<p align="center">
+  <img width="65%" alt="Inference" src="wiki\image\inference_1.png">
 </p>
 
 
